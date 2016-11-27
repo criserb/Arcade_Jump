@@ -1,10 +1,11 @@
 #include "All_headers.h"
 
-int r[] = { 196,196,196,196,196,196 }, g[] = { 119,119,119,119,119,119 }, b[] = { 89,89,89,89,89,89 };
+int r[] = { 196,196,196,196,196,196 }, g[] = { 119,119,119,119,119,119 }, b[] = { 89,89,89,89,89,89 }; // colors of pressed buttons
+int color[] = { 255, 240, 110 };
 
+// menu variables
 ALLEGRO_BITMAP *cursor = NULL;
 ALLEGRO_BITMAP *background = NULL;
-ALLEGRO_BITMAP *text_background = NULL;
 ALLEGRO_FONT *title = NULL;
 ALLEGRO_FONT *menu_item = NULL;
 ALLEGRO_EVENT_QUEUE *menu_event_queue = NULL;
@@ -21,8 +22,7 @@ void menu(void)
 	cord_cursor_y = ((height / 2) - 4) + 30;
 
 	cursor = al_load_bitmap("Cursor_small.png");
-	background = al_load_bitmap("Background.jpg");
-	text_background = al_load_bitmap("Text_background.png");
+	background = al_load_bitmap("Menu_background.jpg");
 	title = al_load_ttf_font("Arcade_Classic.ttf", 42, 0);
 	menu_item = al_load_ttf_font("Arcade_Classic.ttf", 18, 0);
 	menu_event_queue = al_create_event_queue();
@@ -78,12 +78,12 @@ void menu(void)
 				color_press(r, g, b, 1, 3);
 			if (cord_cursor_y == ((height / 2) - 4) + 90)
 				color_press(r, g, b, 2, 3);
-			al_draw_bitmap(background, width / width, height / height, 0);
-			al_draw_text(title, al_map_rgb(196, 119, 89), width / 2, (height / 2) - 160, ALLEGRO_ALIGN_CENTRE, "ARCADE JUMP");
+			// rendering
+			al_draw_scaled_bitmap(background, 1, 1, al_get_bitmap_width(background), al_get_bitmap_height(background), 1, 1, width, height, 0);
+			al_draw_text(title, al_map_rgb(color[0], color[1], color[2]), width / 2, (height / 2) - 160, ALLEGRO_ALIGN_CENTRE, "ARCADE JUMP");
 			al_draw_text(menu_item, al_map_rgb(r[0], g[0], b[0]), width / 2, (height / 2) + 30, ALLEGRO_ALIGN_CENTRE, "START GAME");
 			al_draw_text(menu_item, al_map_rgb(r[1], g[1], b[1]), width / 2, (height / 2) + 60, ALLEGRO_ALIGN_CENTRE, "SETTINGS");
 			al_draw_text(menu_item, al_map_rgb(r[2], g[2], b[2]), width / 2, (height / 2) + 90, ALLEGRO_ALIGN_CENTRE, "EXIT");
-			al_draw_bitmap(text_background, cord_cursor_x + 45, cord_cursor_y + 2, 0);
 			al_draw_bitmap(cursor, cord_cursor_x, cord_cursor_y, 0);
 			al_flip_display();
 			al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -93,7 +93,6 @@ void menu(void)
 	al_destroy_font(menu_item);
 	al_destroy_font(title);
 	al_destroy_bitmap(background);
-	al_destroy_bitmap(text_background);
 	al_destroy_bitmap(cursor);
 	al_destroy_event_queue(menu_event_queue);
 	if (game_on == true) game();
@@ -106,7 +105,6 @@ void settings()
 	ALLEGRO_MONITOR_INFO info;
 	ALLEGRO_FONT *settings_item = al_load_ttf_font("Arcade_Classic.ttf", 18, 0);
 	ALLEGRO_FONT *escape = al_load_ttf_font("Arcade_Classic.ttf", 12, 0);
-	ALLEGRO_BITMAP *escape_background = al_load_bitmap("Escape_background.png");
 
 	cord_cursor_x = (width / 2) - 120;
 	cord_cursor_y = ((height / 2) - 4) + 30;
@@ -177,7 +175,7 @@ void settings()
 				}
 				else if (cord_cursor_y == ((height / 2) - 4) + 180)
 				{
-					// option 5
+					// option 6
 					width = 1920; height = 1080;
 					cord_cursor_x = (width / 2) - 120;
 					cord_cursor_y = ((height / 2) - 4) + 30;
@@ -204,7 +202,8 @@ void settings()
 				color_press(r, g, b, 4, 6);
 			else if (cord_cursor_y == ((height / 2) - 4) + 180)
 				color_press(r, g, b, 5, 6);
-			al_draw_bitmap(background, width / width, height / height, 0);
+			// rendering
+			al_draw_scaled_bitmap(background, 1, 1, al_get_bitmap_width(background), al_get_bitmap_height(background),1,1,width,height,0);
 			al_draw_text(settings_item, al_map_rgb(r[0], g[0], b[0]), width / 2, (height / 2) + 30, ALLEGRO_ALIGN_CENTRE, "FULLSCREEN");
 			al_draw_text(settings_item, al_map_rgb(r[1], g[1], b[1]), width / 2, (height / 2) + 60, ALLEGRO_ALIGN_CENTRE, "WINDOWED");
 			al_draw_text(settings_item, al_map_rgb(r[2], g[2], b[2]), width / 2, (height / 2) + 90, ALLEGRO_ALIGN_CENTRE, "640x480");
@@ -212,10 +211,8 @@ void settings()
 			al_draw_text(settings_item, al_map_rgb(r[4], g[4], b[4]), width / 2, (height / 2) + 150, ALLEGRO_ALIGN_CENTRE, "1280x720");
 			al_draw_text(settings_item, al_map_rgb(r[5], g[5], b[5]), width / 2, (height / 2) + 180, ALLEGRO_ALIGN_CENTRE, "1920x1080");
 			al_draw_bitmap(cursor, cord_cursor_x, cord_cursor_y, 0);
-			al_draw_bitmap(text_background, cord_cursor_x + 45, cord_cursor_y + 2, 0);
-			al_draw_bitmap(escape_background, 0, height - 30, 0);
-			al_draw_bitmap(cursor, 10, height - 30, ALLEGRO_FLIP_HORIZONTAL);
-			al_draw_text(escape, al_map_rgb(196, 119, 89), 30, height - 25, ALLEGRO_ALIGN_LEFT, "PRESS ESC TO BACK");
+			al_draw_bitmap(cursor, 0, height - 30, ALLEGRO_FLIP_HORIZONTAL);
+			al_draw_text(escape, al_map_rgb(color[0], color[1], color[2]), 30, height - 25, ALLEGRO_ALIGN_LEFT, "PRESS ESC TO BACK");
 			al_flip_display();
 			al_clear_to_color(al_map_rgb(0, 0, 0));
 		}
@@ -229,7 +226,7 @@ void color_press(int *r, int *g, int *b, int selection, int max)
 {
 	for (int i = 0; i < max; ++i)
 	{
-		r[i] = 196; g[i] = 119; b[i] = 89;
+		r[i] = color[0]; g[i] = color[1]; b[i] = color[2];
 	}
-	r[selection] = 194; g[selection] = 57; b[selection] = 47;
+	r[selection] = 90; g[selection] = 180; b[selection] = 60;
 }

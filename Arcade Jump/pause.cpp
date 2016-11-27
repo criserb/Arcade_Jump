@@ -5,13 +5,9 @@ char pause(void)
 	bool done = false;
 	bool main_menu_on = false;
 
-	ALLEGRO_EVENT_QUEUE *pause_event_queue = NULL;
-	ALLEGRO_FONT *pause_title = NULL;
-	ALLEGRO_FONT *pause_item = NULL;
-
-	pause_title = al_load_ttf_font("Arcade_Classic.ttf", 42, 0);
-	pause_item = al_load_ttf_font("Arcade_Classic.ttf", 18, 0);
-	pause_event_queue = al_create_event_queue();
+	ALLEGRO_EVENT_QUEUE *pause_event_queue = al_create_event_queue();
+	ALLEGRO_FONT *pause_title = al_load_ttf_font("Arcade_Classic.ttf", 42, 0);
+	ALLEGRO_FONT *pause_item = pause_item = al_load_ttf_font("Arcade_Classic.ttf", 18, 0);
 
 	al_register_event_source(pause_event_queue, al_get_keyboard_event_source());
 	al_register_event_source(pause_event_queue, al_get_timer_event_source(fps_timer));
@@ -35,9 +31,9 @@ char pause(void)
 		}
 		else if (pause_ev.type == ALLEGRO_EVENT_TIMER)
 		{
-			al_draw_text(pause_title, al_map_rgb(196, 119, 89), width / 2, (height / 2) - 160, ALLEGRO_ALIGN_CENTRE, "PAUSE");
-			al_draw_text(pause_item, al_map_rgb(196, 119, 89), width / 2, (height / 2), ALLEGRO_ALIGN_CENTRE, "PRESS ENTER TO CONTINUE");
-			al_draw_text(pause_item, al_map_rgb(196, 119, 89), width / 2, (height / 2) + 30, ALLEGRO_ALIGN_CENTRE, "PRESS ESC TO BACK MAIN MENU");
+			al_draw_text(pause_title, al_map_rgb(color[0], color[1], color[2]), width / 2, (height / 2) - 160, ALLEGRO_ALIGN_CENTRE, "PAUSE");
+			al_draw_text(pause_item, al_map_rgb(color[0], color[1], color[2]), width / 2, (height / 2), ALLEGRO_ALIGN_CENTRE, "PRESS ENTER TO CONTINUE");
+			al_draw_text(pause_item, al_map_rgb(color[0], color[1], color[2]), width / 2, (height / 2) + 30, ALLEGRO_ALIGN_CENTRE, "PRESS ESC TO BACK MAIN MENU");
 			al_flip_display();
 		}
 	}
