@@ -1,27 +1,61 @@
 #include "All_headers.h"
 
-struct avatar {
-	ALLEGRO_BITMAP *image;
-	int x = 0;
-	int y = height - 60;
-	int velocity = 2;
-};
+const float initial_speed = 4.42;
+float speed = initial_speed; // speed of moving map
+int ground;
+bool jump = false;
 
 void game(void)
 {
-	avatar avatar;
-	bool done = false, main_menu_on = false;
+	player player;
+	bool done = false;
+	bool main_menu_on = false;
+	float jump_speed = 12.42;
+	int start_ground = player.y;
+	int ground = player.y;
 
-	ALLEGRO_BITMAP *pause_background = NULL;
-	ALLEGRO_EVENT_QUEUE *event_queue = NULL;
-
-	pause_background = al_load_bitmap("Pause_background.png");
-	avatar.image = al_load_bitmap("Avatar.png");
-	event_queue = al_create_event_queue();
+	ALLEGRO_BITMAP *pause_background = al_load_bitmap("Pause_background.png");
+	ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
+	ALLEGRO_TIMER *action_timer = al_create_timer(1.0);
+	ALLEGRO_FONT *progress = al_load_ttf_font("Arcade_Classic.ttf", 11, 0);
+	ALLEGRO_BITMAP *bar = al_load_bitmap("Bar.png");
+	ALLEGRO_BITMAP *bar_background = al_load_bitmap("Bar_background.png");
 
 	al_register_event_source(event_queue, al_get_keyboard_event_source());
 	al_register_event_source(event_queue, al_get_timer_event_source(fps_timer));
+	al_register_event_source(event_queue, al_get_timer_event_source(action_timer));
 
+	al_start_timer(action_timer);
+
+	std::ifstream filemap;
+	filemap.open("map1.txt");
+	filemap >> sizeX;
+
+	int **map = new int*[sizeX];
+	for (int i = 0; i < sizeX; ++i)
+		map[i] = new int[3];
+	int i = 0;
+	int *coordsX = new int[sizeX];
+	int *coordsY = new int[sizeX];
+	loadmap(filemap, map);
+	for (int i = 0; i < sizeX; ++i)
+		coordsX[i] = width + map[i][0];
+	for (int i = 0; i < sizeX; ++i)
+	{
+		switch (map[i][2])
+		{
+		case 0: coordsY[i] = start_ground; break;
+		case 1: coordsY[i] = start_ground - 40; break;
+		case 2: coordsY[i] = start_ground - 80; break;
+		case 3: coordsY[i] = start_ground - 120; break;
+		case 4: coordsY[i] = start_ground - 160; break;
+		case 5: coordsY[i] = start_ground - 200; break;
+		case 6: coordsY[i] = start_ground - 240; break;
+		case 7: coordsY[i] = start_ground - 280; break;
+		}
+	}
+	float max = coordsX[sizeX - 1];
+	float min = 0;
 	while (!done)
 	{
 		ALLEGRO_EVENT ev;
@@ -32,10 +66,36 @@ void game(void)
 			switch (ev.keyboard.keycode)
 			{
 			case ALLEGRO_KEY_SPACE:
+			{
+				/*if (jump)
+				{
+					player.vely = -jump_speed;
+					jump = false;
 
+				}*/
 				break;
+			}
+			case ALLEGRO_KEY_A:
+			{	// speed
+				speed += 4;
+				break;
+			}
+			case ALLEGRO_KEY_S:
+			{	// speed
+				if (speed > initial_speed)
+					speed -= 4;
+				break;
+			}
+			case ALLEGRO_KEY_D:
+			{	// speed
+				speed = initial_speed;
+				break;
+			}
 			case ALLEGRO_KEY_ESCAPE:
-				al_draw_bitmap(avatar.image, avatar.x, avatar.y, 0);
+			{	//pause
+				al_draw_line(0, start_ground, width, start_ground, al_map_rgb(255, 255, 255), 0);
+				drawmap(map, coordsX, coordsY, player);
+				al_draw_rectangle(player.x, player.y, player.x + player.w, player.y - player.h, al_map_rgb(255, 255, 255), 0);
 				al_draw_bitmap(pause_background, 0, 0, 0);
 				al_pause_event_queue(event_queue, 1);
 				if (pause() == 'm')
@@ -47,18 +107,63 @@ void game(void)
 					al_pause_event_queue(event_queue, 0);
 				break;
 			}
+			}
 		}
-		else if (ev.type == ALLEGRO_EVENT_TIMER)
+		else if (ev.timer.source == fps_timer)
 		{
-			al_draw_bitmap(avatar.image, avatar.x, avatar.y, 0);
+			// jump
+			// jumping(player); 
+			// rendering player
+			al_draw_rectangle(player.x, player.y, player.x + player.w, player.y - player.h, al_map_rgb(255, 255, 255), 0);
+			// rendering line start_ground
+			al_draw_line(0, start_ground, width, start_ground, al_map_rgb(255, 255, 255), 0);
+			// rendering objects
+			drawmap(map, coordsX, coordsY, player);
+			// progress
+			if (min <= max)
+			{
+				al_draw_scaled_bitmap(bar_background, 1, 1, al_get_bitmap_width(bar_background), al_get_bitmap_height(bar_background), (width / 2) - 110, height - (height - 20), al_get_bitmap_width(bar_background), al_get_bitmap_height(bar_background), ALLEGRO_ALIGN_CENTER);
+				al_draw_scaled_bitmap(bar, 1, 1, al_get_bitmap_width(bar), al_get_bitmap_height(bar), (width / 2) - 100, height - (height - 20), min / max*al_get_bitmap_width(bar), al_get_bitmap_height(bar), ALLEGRO_ALIGN_CENTER);
+				al_draw_textf(progress, al_map_rgb(255, 255, 200), (width / 2) + 122, height - (height - 20), ALLEGRO_ALIGN_CENTER, "%.f%%", min / max * 100);
+			}
+			else
+			{
+				// end of map
+				done = true;
+				main_menu_on = true;
+			}
 			al_flip_display();
 			al_clear_to_color(al_map_rgb(0, 0, 0));
+			min += speed;
 		}
-		avatar.x = (avatar.x + avatar.velocity) % width;
 	}
 	// destroying objects
 	al_destroy_bitmap(pause_background);
-	al_destroy_bitmap(avatar.image);
+	al_destroy_timer(action_timer);
 	al_destroy_event_queue(event_queue);
+	al_destroy_font(progress);
+	al_destroy_bitmap(bar);
+	al_destroy_bitmap(bar_background);
+	for (int i = 0; i < sizeX; ++i) {
+		delete[] map[i];
+	}
+	delete[] map;
+	delete[] coordsX;
+	delete[] coordsY;
+	filemap.close();
 	if (main_menu_on == true) menu();
+}
+
+void jumping(player &player)
+{
+	if (!jump)
+		player.vely += player.gravity;
+	else
+		player.vely = 0;
+	player.y += player.vely;
+	jump = (player.y >= ground);
+	if (jump)
+	{
+		player.y = ground;
+	}
 }
