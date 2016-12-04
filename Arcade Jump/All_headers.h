@@ -16,12 +16,25 @@ void color_press(int *r, int *g, int *b, int selection, int max); // coloring se
 void game(void);
 char pause(void); // return m if user press main menu in pause menu, return g if user press continue in pause menu
 void loadmap(std::ifstream &filename, int **map); // loading map
-void drawmap(int **map, int *coords, int *coordsY); // drawing map
+void drawmap(int **map, int *coordsX, int *coordsY, struct player player); // drawing map
+void jumping(player &player); // jumping function
 
-// global variables 
+// global variables
+#define blocksize 40
 extern ALLEGRO_TIMER *fps_timer;
 extern ALLEGRO_DISPLAY *display;
 extern int width;
 extern int height;
 extern int fps;
 extern int color[]; // color of unpressed button
+extern int sizeX; // elements in the map
+extern float speed; // speed of the map
+typedef struct player
+{
+	int w = 38;
+	int h = 38;
+	int x = 40; // position of player in X
+	int y = height - 60; // position of player in Y
+	float vely = 0;
+	const float gravity = 1.05;
+}player;
