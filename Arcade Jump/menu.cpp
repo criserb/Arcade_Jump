@@ -79,7 +79,7 @@ void menu(void)
 			if (cord_cursor_y == ((height / 2) - 4) + 90)
 				color_press(r, g, b, 2, 3);
 			// rendering
-			al_draw_scaled_bitmap(background, 1, 1, al_get_bitmap_width(background), al_get_bitmap_height(background), 1, 1, width, height, 0);
+			al_draw_scaled_bitmap(background, 0, 0, al_get_bitmap_width(background), al_get_bitmap_height(background), 0, 0, width, height, 0);
 			al_draw_text(title, al_map_rgb(color[0], color[1], color[2]), width / 2, (height / 2) - 160, ALLEGRO_ALIGN_CENTRE, "ARCADE JUMP");
 			al_draw_text(menu_item, al_map_rgb(r[0], g[0], b[0]), width / 2, (height / 2) + 30, ALLEGRO_ALIGN_CENTRE, "START GAME");
 			al_draw_text(menu_item, al_map_rgb(r[1], g[1], b[1]), width / 2, (height / 2) + 60, ALLEGRO_ALIGN_CENTRE, "SETTINGS");
@@ -101,8 +101,8 @@ void menu(void)
 // settings options
 void settings()
 {
-	bool done = false;
 	ALLEGRO_MONITOR_INFO info;
+	bool done = false;
 	ALLEGRO_FONT *settings_item = al_load_ttf_font("Arcade_Classic.ttf", 18, 0);
 	ALLEGRO_FONT *escape = al_load_ttf_font("Arcade_Classic.ttf", 12, 0);
 
@@ -203,7 +203,7 @@ void settings()
 			else if (cord_cursor_y == ((height / 2) - 4) + 180)
 				color_press(r, g, b, 5, 6);
 			// rendering
-			al_draw_scaled_bitmap(background, 1, 1, al_get_bitmap_width(background), al_get_bitmap_height(background),1,1,width,height,0);
+			al_draw_scaled_bitmap(background, 0, 0, al_get_bitmap_width(background), al_get_bitmap_height(background),0,0,width,height,0);
 			al_draw_text(settings_item, al_map_rgb(r[0], g[0], b[0]), width / 2, (height / 2) + 30, ALLEGRO_ALIGN_CENTRE, "FULLSCREEN");
 			al_draw_text(settings_item, al_map_rgb(r[1], g[1], b[1]), width / 2, (height / 2) + 60, ALLEGRO_ALIGN_CENTRE, "WINDOWED");
 			al_draw_text(settings_item, al_map_rgb(r[2], g[2], b[2]), width / 2, (height / 2) + 90, ALLEGRO_ALIGN_CENTRE, "640x480");

@@ -9,16 +9,16 @@ void drawmap(int **map, int *coordsX, int *coordsY, player player)
 		switch (map[i][1])
 		{
 		case 1: al_draw_triangle(coordsX[i], coordsY[i], coordsX[i] + blocksize, coordsY[i], coordsX[i] + blocksize / 2, coordsY[i] - blocksize,
-			al_map_rgb(255, 255, 255), 0);
+			al_map_rgb(0, 0, 0), 0);
 			break;
-		case 2: al_draw_rectangle(coordsX[i], coordsY[i], coordsX[i] + blocksize, coordsY[i] - blocksize, al_map_rgb(255, 255, 255), 0);
+		case 2: al_draw_rectangle(coordsX[i], coordsY[i], coordsX[i] + blocksize, coordsY[i] - blocksize, al_map_rgb(0, 0, 0), 0);
 			break;
 		case 3: al_draw_triangle(coordsX[i], coordsY[i], coordsX[i] + blocksize, coordsY[i], coordsX[i] + blocksize / 2, coordsY[i] + blocksize,
-			al_map_rgb(255, 255, 255), 0);
+			al_map_rgb(0, 0, 0), 0);
 			break;
 		case 4:
 			al_draw_triangle(coordsX[i] - blocksize, coordsY[i] - blocksize / 2, coordsX[i], coordsY[i] - blocksize, coordsX[i], coordsY[i],
-				al_map_rgb(255, 255, 255), 0);
+				al_map_rgb(0, 0, 0), 0);
 			break;
 		}
 		coordsX[i] -= speed;

@@ -10,7 +10,7 @@ int main(void)
 {
 	//allegro variables
 	if (!al_init())		// test allegro
-		al_show_native_message_box(display, "Arcade Jump", "Error", "Error", "Error with allegro", ALLEGRO_MESSAGEBOX_WARN);
+		al_show_native_message_box(display, "Arcade Jump", "ERROR", "ERROR WITH ALLEGRO", "Error with allegro", ALLEGRO_MESSAGEBOX_WARN);
 
 	al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);
 	display = al_create_display(width, height);
@@ -18,18 +18,22 @@ int main(void)
 	al_hide_mouse_cursor(display);
 
 	if (!display)		//test display
-		al_show_native_message_box(display, "Arcade Jump", "Error", "Error", "Error with display", ALLEGRO_MESSAGEBOX_WARN);
+		al_show_native_message_box(display, "Arcade Jump", "ERROR", "ERROR WITH DISPLAY", "Error with display", ALLEGRO_MESSAGEBOX_WARN);
 
 	fps_timer = al_create_timer(1.0 / fps);
 	al_start_timer(fps_timer);
 
 	//addon init
+	al_init_video_addon();
+	al_install_audio();
+	al_init_acodec_addon();
 	al_install_keyboard();
 	al_init_primitives_addon();
 	al_init_image_addon();
 	al_init_font_addon();
 	al_init_ttf_addon();
 
+	//splash_screen();
 	menu();
 
 	// destroying globall variables
