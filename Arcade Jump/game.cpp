@@ -13,22 +13,17 @@ void game(void)
 	int start_ground = player.y;
 	int ground = player.y;
 	bool jump = false;
-	float angle = 0;
 
 	ALLEGRO_BITMAP *pause_background = al_load_bitmap("Pause_background.png");
 	ALLEGRO_BITMAP *game_background = al_load_bitmap("Game_background.jpg");
 	ALLEGRO_BITMAP *white_background = al_load_bitmap("White_background.jpg");
 	ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
-	ALLEGRO_TIMER *action_timer = al_create_timer(1.0);
 	ALLEGRO_FONT *progress = al_load_ttf_font("Arcade_Classic.ttf", 11, 0);
 	ALLEGRO_BITMAP *bar = al_load_bitmap("Bar.png");
 	ALLEGRO_BITMAP *bar_background = al_load_bitmap("Bar_background.png");
 
 	al_register_event_source(event_queue, al_get_keyboard_event_source());
 	al_register_event_source(event_queue, al_get_timer_event_source(fps_timer));
-	al_register_event_source(event_queue, al_get_timer_event_source(action_timer));
-
-	al_start_timer(action_timer);
 
 	std::ifstream filemap;
 	filemap.open("map1.txt");
@@ -159,13 +154,11 @@ void game(void)
 			}
 			al_flip_display();
 			al_clear_to_color(al_map_rgb(0, 0, 0));
-			angle = angle + 0.001;
 			map_min += speed;
 		}
 	}
 	// destroying objects
 	al_destroy_bitmap(pause_background);
-	al_destroy_timer(action_timer);
 	al_destroy_event_queue(event_queue);
 	al_destroy_font(progress);
 	al_destroy_bitmap(bar);

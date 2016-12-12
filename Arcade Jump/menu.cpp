@@ -6,7 +6,7 @@ int color[] = { 255, 240, 110 };
 // menu variables
 ALLEGRO_BITMAP *cursor = NULL;
 ALLEGRO_BITMAP *background = NULL;
-ALLEGRO_FONT *title = NULL;
+ALLEGRO_BITMAP *logo = NULL;
 ALLEGRO_FONT *menu_item = NULL;
 ALLEGRO_EVENT_QUEUE *menu_event_queue = NULL;
 int cord_cursor_x;
@@ -23,9 +23,9 @@ void menu(void)
 
 	cursor = al_load_bitmap("Cursor_small.png");
 	background = al_load_bitmap("Menu_background.jpg");
-	title = al_load_ttf_font("Arcade_Classic.ttf", 42, 0);
 	menu_item = al_load_ttf_font("Arcade_Classic.ttf", 18, 0);
 	menu_event_queue = al_create_event_queue();
+	logo = al_load_bitmap("Logo.png");
 
 	al_register_event_source(menu_event_queue, al_get_keyboard_event_source());
 	al_register_event_source(menu_event_queue, al_get_timer_event_source(fps_timer));
@@ -80,7 +80,7 @@ void menu(void)
 				color_press(r, g, b, 2, 3);
 			// rendering
 			al_draw_scaled_bitmap(background, 0, 0, al_get_bitmap_width(background), al_get_bitmap_height(background), 0, 0, width, height, 0);
-			al_draw_text(title, al_map_rgb(color[0], color[1], color[2]), width / 2, (height / 2) - 160, ALLEGRO_ALIGN_CENTRE, "ARCADE JUMP");
+			al_draw_scaled_bitmap(logo, 0, 0, al_get_bitmap_width(logo), al_get_bitmap_height(logo), width/4, 0, width/2, height/2, 0);
 			al_draw_text(menu_item, al_map_rgb(r[0], g[0], b[0]), width / 2, (height / 2) + 30, ALLEGRO_ALIGN_CENTRE, "START GAME");
 			al_draw_text(menu_item, al_map_rgb(r[1], g[1], b[1]), width / 2, (height / 2) + 60, ALLEGRO_ALIGN_CENTRE, "SETTINGS");
 			al_draw_text(menu_item, al_map_rgb(r[2], g[2], b[2]), width / 2, (height / 2) + 90, ALLEGRO_ALIGN_CENTRE, "EXIT");
@@ -91,9 +91,9 @@ void menu(void)
 	}
 	// destroying objects
 	al_destroy_font(menu_item);
-	al_destroy_font(title);
 	al_destroy_bitmap(background);
 	al_destroy_bitmap(cursor);
+	al_destroy_bitmap(logo);
 	al_destroy_event_queue(menu_event_queue);
 	if (game_on == true) game();
 }
@@ -228,5 +228,5 @@ void color_press(int *r, int *g, int *b, int selection, int max)
 	{
 		r[i] = color[0]; g[i] = color[1]; b[i] = color[2];
 	}
-	r[selection] = 90; g[selection] = 180; b[selection] = 60;
+	r[selection] = 255; g[selection] = 120; b[selection] = 0;
 }

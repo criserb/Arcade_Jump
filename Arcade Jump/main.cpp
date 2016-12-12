@@ -24,7 +24,6 @@ int main(void)
 	al_start_timer(fps_timer);
 
 	//addon init
-	al_init_video_addon();
 	al_install_audio();
 	al_init_acodec_addon();
 	al_install_keyboard();
@@ -33,7 +32,7 @@ int main(void)
 	al_init_font_addon();
 	al_init_ttf_addon();
 
-	//splash_screen();
+	intro();
 	menu();
 
 	// destroying globall variables

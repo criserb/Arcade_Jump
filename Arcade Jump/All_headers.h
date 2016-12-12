@@ -8,9 +8,7 @@
 #include <allegro5\allegro_primitives.h>
 #include <allegro5\allegro_audio.h>
 #include <allegro5\allegro_acodec.h>
-#include <allegro5\allegro_video.h>
 #include <fstream>
-#include <iostream>
 
 // menu functions
 void menu(void);
@@ -24,7 +22,7 @@ char pause(void); // return m if user press main menu in pause menu, return g if
 void loadmap(std::ifstream &filename, int **map); // loading map
 void drawmap(int **map, int *coordsX, int *coordsY, struct player player); // drawing map
 // splash screen
-void splash_screen(void);
+void intro(void);
 
 // global variables
 #define blocksize 40

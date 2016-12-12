@@ -33,7 +33,7 @@
     <ClCompile Include="map.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="splash.cpp">
+    <ClCompile Include="intro.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -150,7 +150,7 @@
     <ClCompile Include="map.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="pause.cpp" />
-    <ClCompile Include="splash.cpp" />
+    <ClCompile Include="intro.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="All_headers.h" />
