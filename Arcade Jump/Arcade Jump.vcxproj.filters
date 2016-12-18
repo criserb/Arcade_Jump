@@ -36,12 +36,18 @@
     <ClCompile Include="intro.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PPCD.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="All_headers.h">
+    <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="PPCD.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="all_headers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

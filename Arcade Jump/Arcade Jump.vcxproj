@@ -151,9 +151,11 @@
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="pause.cpp" />
     <ClCompile Include="intro.cpp" />
+    <ClCompile Include="PPCD.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="All_headers.h" />
+    <ClInclude Include="all_headers.h" />
+    <ClInclude Include="PPCD.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

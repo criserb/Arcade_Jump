@@ -1,7 +1,7 @@
-#include "All_headers.h"
+#include "all_headers.h"
 
-ALLEGRO_TIMER *fps_timer = NULL; 
-ALLEGRO_DISPLAY *display = NULL;
+ALLEGRO_TIMER *fps_timer; 
+ALLEGRO_DISPLAY *display;
 int width = 640;
 int height = 480;
 int fps = 60;

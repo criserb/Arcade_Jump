@@ -1,4 +1,4 @@
-#include "All_headers.h"
+#include "all_headers.h"
 
 const float initial_speed = 4.42;
 float speed = initial_speed; // speed of moving map
@@ -6,24 +6,50 @@ int ground;
 
 void game(void)
 {
-	player player;
 	bool done = false;
 	bool main_menu_on = false;
 	float jump_speed = 12.42;
-	int start_ground = player.y;
-	int ground = player.y;
+	const int start_ground = height - 60 - blocksize;
+	ground = start_ground;
 	bool jump = false;
 
-	ALLEGRO_BITMAP *pause_background = al_load_bitmap("Pause_background.png");
-	ALLEGRO_BITMAP *game_background = al_load_bitmap("Game_background.jpg");
-	ALLEGRO_BITMAP *white_background = al_load_bitmap("White_background.jpg");
+	ALLEGRO_BITMAP *pause_background = al_load_bitmap("Graphics/Pause_background.png");
+	ALLEGRO_BITMAP *game_background = al_load_bitmap("Graphics/Game_background.jpg");
 	ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
 	ALLEGRO_FONT *progress = al_load_ttf_font("Arcade_Classic.ttf", 11, 0);
-	ALLEGRO_BITMAP *bar = al_load_bitmap("Bar.png");
-	ALLEGRO_BITMAP *bar_background = al_load_bitmap("Bar_background.png");
+	ALLEGRO_BITMAP *bar = al_load_bitmap("Graphics/Bar.png");
+	ALLEGRO_BITMAP *bar_background = al_load_bitmap("Graphics/Bar_background.png");
 
 	al_register_event_source(event_queue, al_get_keyboard_event_source());
 	al_register_event_source(event_queue, al_get_timer_event_source(fps_timer));
+
+	//==============================================
+	//COLLIDE OBJECTS
+	//==============================================
+
+	int elements = 2;
+	c_object *collide_objects = new c_object[elements];
+	// spike
+	collide_objects[0].image = al_load_bitmap("Graphics/Spike.png");
+	collide_objects[0].mask = Mask_New(collide_objects[0].image);
+	// tile
+	collide_objects[1].image = al_load_bitmap("Graphics/Tile.png");
+	collide_objects[1].mask = Mask_New(collide_objects[1].image);
+
+	//==============================================
+	//PLAYER
+	//==============================================
+
+	player player;
+	player.image = al_load_bitmap("Graphics/Avatar.png");
+	player.mask = Mask_New(player.image);
+	player.w = al_get_bitmap_width(player.image);
+	player.h = al_get_bitmap_height(player.image);
+	player.y = start_ground;
+
+	//==============================================
+	//MAP
+	//==============================================
 
 	std::ifstream filemap;
 	filemap.open("map1.txt");
@@ -43,20 +69,23 @@ void game(void)
 		switch (map[i][2])
 		{
 		case 0: coordsY[i] = start_ground; break;
-		case 1: coordsY[i] = start_ground - 40; break;
-		case 2: coordsY[i] = start_ground - 80; break;
-		case 3: coordsY[i] = start_ground - 120; break;
-		case 4: coordsY[i] = start_ground - 160; break;
-		case 5: coordsY[i] = start_ground - 200; break;
-		case 6: coordsY[i] = start_ground - 240; break;
-		case 7: coordsY[i] = start_ground - 280; break;
+		case 1: coordsY[i] = start_ground - blocksize; break;
+		case 2: coordsY[i] = start_ground - 2 * blocksize; break;
+		case 3: coordsY[i] = start_ground - 3 * blocksize; break;
+		case 4: coordsY[i] = start_ground - 4 * blocksize; break;
+		case 5: coordsY[i] = start_ground - 5 * blocksize; break;
+		case 6: coordsY[i] = start_ground - 6 * blocksize; break;
+		case 7: coordsY[i] = start_ground - 7 * blocksize; break;
 		}
 	}
 	// variables for moving map
 	float map_max = coordsX[sizeX - 1];
 	float map_min = 0;
-	double c[] = { 0,0,0,0 };
-	int it = 0;
+
+	//==============================================
+	//GAME LOOP
+	//==============================================
+
 	while (!done)
 	{
 		ALLEGRO_EVENT ev;
@@ -96,11 +125,11 @@ void game(void)
 				// rendering background
 				al_draw_scaled_bitmap(game_background, 0, 0, al_get_bitmap_width(game_background), al_get_bitmap_height(game_background), 0, 0, width, height, 0);
 				// rendering player
-				al_draw_rectangle(player.x, player.y, player.x + player.w, player.y - player.h, al_map_rgb(0, 0, 0), 0);
+				al_draw_bitmap(player.image, player.x, player.y+(blocksize - player.h), 0);
 				// rendering line start_ground
-				al_draw_line(0, start_ground, width, start_ground, al_map_rgb(0, 0, 0), 0);
+				al_draw_line(0, start_ground + blocksize, width, start_ground + blocksize, al_map_rgb(0, 0, 0), 0);
 				// rendering objects
-				drawmap(map, coordsX, coordsY, player);
+				drawmap(map, coordsX, coordsY, player, collide_objects);
 				// progress
 				al_draw_scaled_bitmap(bar_background, 1, 1, al_get_bitmap_width(bar_background), al_get_bitmap_height(bar_background), (width / 2) - 110, height - (height - 20), al_get_bitmap_width(bar_background), al_get_bitmap_height(bar_background), ALLEGRO_ALIGN_CENTER);
 				al_draw_scaled_bitmap(bar, 0, 0, al_get_bitmap_width(bar), al_get_bitmap_height(bar), (width / 2) - 100, height - (height - 20), map_min / map_max*al_get_bitmap_width(bar), al_get_bitmap_height(bar), ALLEGRO_ALIGN_CENTER);
@@ -118,9 +147,14 @@ void game(void)
 			}
 			}
 		}
+		//==============================================
+		//GAME UPDATE & RENDER
+		//==============================================
 		else if (ev.timer.source == fps_timer)
 		{
-			// jump
+			//==============================================
+			//JUMP
+			//==============================================
 			if (!jump)
 				player.vely += player.gravity;
 			else
@@ -134,11 +168,12 @@ void game(void)
 			// rendering background
 			al_draw_scaled_bitmap(game_background, 0, 0, al_get_bitmap_width(game_background), al_get_bitmap_height(game_background), 0, 0, width, height, 0);
 			// rendering player
-			al_draw_rectangle(player.x, player.y, player.x + player.w, player.y - player.h, al_map_rgb(0, 0, 0), 0);
+			//al_draw_rectangle(player.x, player.y, player.x + player.w, player.y - player.h, al_map_rgb(0, 0, 0), 0);
+			al_draw_bitmap(player.image, player.x, player.y + (blocksize - player.h), 0);
 			// rendering line start_ground
-			al_draw_line(0, start_ground, width, start_ground, al_map_rgb(0, 0, 0), 0);
+			al_draw_line(0, start_ground + blocksize, width, start_ground + blocksize, al_map_rgb(0, 0, 0), 0);
 			// rendering objects
-			drawmap(map, coordsX, coordsY, player);
+			drawmap(map, coordsX, coordsY, player, collide_objects);
 			// progress
 			if (map_min <= map_max)
 			{
@@ -164,7 +199,14 @@ void game(void)
 	al_destroy_bitmap(bar);
 	al_destroy_bitmap(bar_background);
 	al_destroy_bitmap(game_background);
-	al_destroy_bitmap(white_background);
+	al_destroy_bitmap(player.image);
+	Mask_Delete(player.mask);
+	for (int i = 0; i < elements; ++i)
+	{
+		al_destroy_bitmap(collide_objects[i].image);
+		Mask_Delete(collide_objects[i].mask);
+	}
+	delete[] collide_objects;
 	for (int i = 0; i < sizeX; ++i) {
 		delete[] map[i];
 	}

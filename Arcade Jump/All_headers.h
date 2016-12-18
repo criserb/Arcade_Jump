@@ -9,6 +9,8 @@
 #include <allegro5\allegro_audio.h>
 #include <allegro5\allegro_acodec.h>
 #include <fstream>
+#include <vector>
+#include "PPCD.h"
 
 // menu functions
 void menu(void);
@@ -20,8 +22,8 @@ void game(void);
 char pause(void); // return m if user press main menu in pause menu, return g if user press continue in pause menu
 // maps
 void loadmap(std::ifstream &filename, int **map); // loading map
-void drawmap(int **map, int *coordsX, int *coordsY, struct player player); // drawing map
-// splash screen
+void drawmap(int **map, int *coordsX, int *coordsY, struct player &player, struct c_object *collide_objects); // drawing map
+// intro
 void intro(void);
 
 // global variables
@@ -34,12 +36,22 @@ extern int fps;
 extern int color[]; // color of unpressed button
 extern int sizeX; // elements in the map
 extern float speed; // speed of the map
+extern int ground;
+extern bool tile_collision;
+
 typedef struct player
 {
-	int w = 38;
-	int h = 38;
+	int w, h;
 	int x = 40; // position of player in X
-	int y = height - 60; // position of player in Y
+	int y; // position of player in Y
 	float vely = 0;
 	const float gravity = 1.05;
+	ALLEGRO_BITMAP *image;
+	mask_t *mask;
 }player;
+
+typedef struct c_object
+{
+	ALLEGRO_BITMAP *image;
+	mask_t *mask;
+}c_object;

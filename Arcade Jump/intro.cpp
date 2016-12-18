@@ -1,4 +1,4 @@
-#include "All_headers.h"
+#include "all_headers.h"
 #include <string>
 
 void intro(void)
@@ -9,15 +9,16 @@ void intro(void)
 	std::string name = "Intro/Intro_";
 	std::string png = ".png";
 	std::string all_name;
-	std::string s;
 	std::string buffer;
 	bool done = false;
 	int c = 0, i = 0;
 
+	ALLEGRO_TIMER *vid_fps = al_create_timer(1.0 / 29.970);
 	ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
-	al_register_event_source(event_queue, al_get_timer_event_source(fps_timer));
 	al_register_event_source(event_queue, al_get_keyboard_event_source());
+	al_register_event_source(event_queue, al_get_timer_event_source(vid_fps));
 
+	al_start_timer(vid_fps);
 	al_reserve_samples(1);
 	al_play_sample(intro_music, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, 0);
 
@@ -30,7 +31,7 @@ void intro(void)
 			if (ev.keyboard.keycode == ALLEGRO_KEY_SPACE)
 				done = true;
 		}
-		else if (ev.type == ALLEGRO_EVENT_TIMER)
+		else if (ev.timer.source == vid_fps)
 		{
 			all_name = name + count + png;
 			image = al_load_bitmap(all_name.c_str());
@@ -51,5 +52,6 @@ void intro(void)
 		if (i == 390)
 			done = true;
 	}
+	al_destroy_timer(vid_fps);
 	al_destroy_sample(intro_music);
 }
