@@ -1,7 +1,8 @@
 #include "all_headers.h"
 
-const float initial_speed = 4.42;
+const float initial_speed = 5;
 float speed = initial_speed; // speed of moving map
+int start_ground;
 int ground;
 
 void game(void)
@@ -9,7 +10,7 @@ void game(void)
 	bool done = false;
 	bool main_menu_on = false;
 	float jump_speed = 12.42;
-	const int start_ground = height - 60 - blocksize;
+	start_ground = height - 60 - blocksize;
 	ground = start_ground;
 	bool jump = false;
 
@@ -27,7 +28,7 @@ void game(void)
 	//COLLIDE OBJECTS
 	//==============================================
 
-	int elements = 2;
+	int elements = 3;
 	c_object *collide_objects = new c_object[elements];
 	// spike
 	collide_objects[0].image = al_load_bitmap("Graphics/Spike.png");
@@ -35,6 +36,9 @@ void game(void)
 	// tile
 	collide_objects[1].image = al_load_bitmap("Graphics/Tile.png");
 	collide_objects[1].mask = Mask_New(collide_objects[1].image);
+	// 180 degree spike
+	collide_objects[2].image = al_load_bitmap("Graphics/Spike_reverse.png");
+	collide_objects[2].mask = Mask_New(collide_objects[2].image);
 
 	//==============================================
 	//PLAYER
@@ -125,7 +129,7 @@ void game(void)
 				// rendering background
 				al_draw_scaled_bitmap(game_background, 0, 0, al_get_bitmap_width(game_background), al_get_bitmap_height(game_background), 0, 0, width, height, 0);
 				// rendering player
-				al_draw_bitmap(player.image, player.x, player.y+(blocksize - player.h), 0);
+				al_draw_bitmap(player.image, player.x, player.y + (blocksize - player.h), 0);
 				// rendering line start_ground
 				al_draw_line(0, start_ground + blocksize, width, start_ground + blocksize, al_map_rgb(0, 0, 0), 0);
 				// rendering objects

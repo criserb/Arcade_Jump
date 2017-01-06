@@ -1,57 +1,91 @@
-#include "all_headers.h"
-#include <string>
+#include "All_headers.h"
+#include "allegro5\allegro_video.h"
+
+static void video_display(ALLEGRO_VIDEO *video, ALLEGRO_FONT *skip)
+{
+	/* Videos often do not use square pixels - these return the scaled dimensions
+	* of the video frame.
+	*/
+	float scaled_w = al_get_video_scaled_width(video);
+	float scaled_h = al_get_video_scaled_height(video);
+	/* Get the currently visible frame of the video, based on clock
+	* time.
+	*/
+	ALLEGRO_BITMAP *frame = al_get_video_frame(video);
+
+	if (!frame)
+		return;
+
+	/* Display the frame. */
+	al_draw_bitmap(frame, 0, 0, 0);
+	al_draw_text(skip, al_map_rgb(color[0], color[1], color[2]), width - 50, (height / 2) + 200, ALLEGRO_ALIGN_RIGHT, "PRESS SPACE TO SKIP INTRO");
+	al_flip_display();
+	al_clear_to_color(al_map_rgb(0, 0, 0));
+}
 
 void intro(void)
 {
-	ALLEGRO_SAMPLE *intro_music = al_load_sample("Intro/Intro_music.ogg");
-	ALLEGRO_BITMAP *image = NULL;
-	std::string count = "000000";
-	std::string name = "Intro/Intro_";
-	std::string png = ".png";
-	std::string all_name;
-	std::string buffer;
-	bool done = false;
-	int c = 0, i = 0;
+	bool redraw = true;
+	bool use_frame_events = false;
 
-	ALLEGRO_TIMER *vid_fps = al_create_timer(1.0 / 29.970);
-	ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
-	al_register_event_source(event_queue, al_get_keyboard_event_source());
-	al_register_event_source(event_queue, al_get_timer_event_source(vid_fps));
-
-	al_start_timer(vid_fps);
+	al_init_video_addon();
 	al_reserve_samples(1);
-	al_play_sample(intro_music, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, 0);
 
+	al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
+	ALLEGRO_BITMAP *bitmap;
+	ALLEGRO_VIDEO *intro_vid = al_open_video("Intro/Intro.ogv");
+	ALLEGRO_EVENT vid_ev;
+	ALLEGRO_FONT *skip = al_load_ttf_font("Arcade_Classic.ttf", 18, 0);
+
+	ALLEGRO_EVENT_QUEUE *vid_event_queue = al_create_event_queue();
+
+	al_register_event_source(vid_event_queue, al_get_video_event_source(intro_vid));
+	al_register_event_source(vid_event_queue, al_get_display_event_source(display));
+	al_register_event_source(vid_event_queue, al_get_timer_event_source(fps_timer));
+	al_register_event_source(vid_event_queue, al_get_keyboard_event_source());
+
+	al_start_video(intro_vid, al_get_default_mixer());
+
+	bool done = false;
 	while (!done)
 	{
-		ALLEGRO_EVENT ev;
-		al_wait_for_event(event_queue, &ev);
-		if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
+		al_wait_for_event(vid_event_queue, &vid_ev);
+		switch (vid_ev.type)
 		{
-			if (ev.keyboard.keycode == ALLEGRO_KEY_SPACE)
+		case ALLEGRO_EVENT_KEY_DOWN:
+			switch (vid_ev.keyboard.keycode)
+			{
+			case ALLEGRO_KEY_SPACE:
+				al_close_video(intro_vid);
 				done = true;
-		}
-		else if (ev.timer.source == vid_fps)
-		{
-			all_name = name + count + png;
-			image = al_load_bitmap(all_name.c_str());
-			al_draw_bitmap(image, 0, 0, 0);
-			al_flip_display();
+			}
+			break;
+		case ALLEGRO_EVENT_DISPLAY_RESIZE:
+			al_acknowledge_resize(display);
 			al_clear_to_color(al_map_rgb(0, 0, 0));
-			al_destroy_bitmap(image);
-			c++;
-			count.clear();
-			count = std::to_string(c);
-			while (buffer.length() + count.length() < 6)
-				buffer += '0';
-			count = buffer + count;
-			while (count.length() > 6)
-				count.erase(count.begin());
-			++i;
-		}
-		if (i == 390)
+			break;
+
+		case ALLEGRO_EVENT_TIMER:
+			video_display(intro_vid, skip);
+
+			break;
+
+		case ALLEGRO_EVENT_DISPLAY_CLOSE:
+			al_close_video(intro_vid);
 			done = true;
+			break;
+
+		case ALLEGRO_EVENT_VIDEO_FRAME_SHOW:
+			if (use_frame_events) {
+				redraw = true;
+			}
+			break;
+
+		case ALLEGRO_EVENT_VIDEO_FINISHED:
+			done = true;
+			break;
+		}
 	}
-	al_destroy_timer(vid_fps);
-	al_destroy_sample(intro_music);
+	al_destroy_event_queue(vid_event_queue);
+	al_destroy_font(skip);
 }

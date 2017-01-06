@@ -9,7 +9,6 @@
 #include <allegro5\allegro_audio.h>
 #include <allegro5\allegro_acodec.h>
 #include <fstream>
-#include <vector>
 #include "PPCD.h"
 
 // menu functions
@@ -37,7 +36,7 @@ extern int color[]; // color of unpressed button
 extern int sizeX; // elements in the map
 extern float speed; // speed of the map
 extern int ground;
-extern bool tile_collision;
+extern int start_ground;
 
 typedef struct player
 {
