@@ -1,7 +1,7 @@
 #include "all_headers.h"
 
-const float initial_speed = 5;
-float speed = initial_speed; // speed of moving map
+const int initial_speed = 5;
+int speed = initial_speed; // speed of moving map
 int start_ground;
 int ground;
 

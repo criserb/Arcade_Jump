@@ -1,5 +1,4 @@
 #include "all_headers.h"
-#include <iostream>
 
 int sizeX; // elements in the map
 
@@ -54,8 +53,6 @@ void drawmap(int **map, int *coordsX, int *coordsY, player &player, c_object *co
 				al_draw_bitmap(collide_objects[1].image, coordsX[i], coordsY[i], 0);
 				break;
 			}//switch
-			if (tile_collision)
-				ground = coordsY[i] - blocksize;
 
 			//FOR DEBUG
 			//if (collision)
@@ -64,6 +61,13 @@ void drawmap(int **map, int *coordsX, int *coordsY, player &player, c_object *co
 			//	Mask_Draw(player.mask, player.x, player.y - blocksize / 2);
 			//	Mask_Draw(collide_objects[1].mask, coordsX[i] - blocksize, coordsY[i] - blocksize / 2);
 			//}
+
+			//==============================================
+			//COLLISION DETECTION
+			//==============================================
+
+			if (tile_collision)
+				ground = coordsY[i] - blocksize;
 
 			if (collision)
 			{

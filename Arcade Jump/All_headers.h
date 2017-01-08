@@ -34,7 +34,7 @@ extern int height;
 extern int fps;
 extern int color[]; // color of unpressed button
 extern int sizeX; // elements in the map
-extern float speed; // speed of the map
+extern int speed; // speed of the map
 extern int ground;
 extern int start_ground;
 
