@@ -4,25 +4,66 @@ const int initial_speed = 5;
 int speed = initial_speed; // speed of moving map
 int start_ground;
 int ground;
+const int NUM_EXPLOSIONS = 32;
+
+void redraw(player &player, int **map, int *coordsX, int *coordsY, c_object *collide_objects, backgrounds backgrounds, float &angle, bool &collision, parallax_image BG)
+{
+	// rendering game up_background
+	al_draw_scaled_bitmap(backgrounds.game_background_up, 0, 0, al_get_bitmap_width(backgrounds.game_background_up), al_get_bitmap_height(backgrounds.game_background_up),
+		0, 0, width, start_ground + blocksize, 0);
+	// rendering parralax effect
+	DrawBackground(BG);
+	// rendering game down_background
+	al_draw_scaled_bitmap(backgrounds.game_background_down, 0, height / 1.5, al_get_bitmap_width(backgrounds.game_background_down), al_get_bitmap_height(backgrounds.game_background_down),
+		0, start_ground + blocksize, width, height, 0);
+	// rendering player
+	//al_draw_bitmap(player.image, player.x, player.y + (blocksize - player.h), 0);
+	al_draw_rotated_bitmap(player.image, 20, 20, player.x + 20, player.y + 20, -angle, 0);
+	// rendering map
+	drawmap(map, coordsX, coordsY, player, collide_objects, collision);
+	if (!collision)
+	{
+		angle -= 0.1;
+		if (angle <= 1)
+			angle -= 0.1;
+		if (angle <= 0)
+			angle = 100;
+	}
+}
 
 void game(void)
 {
+	bool collision = false;
 	bool done = false;
 	bool main_menu_on = false;
+	bool replay = false;
 	float jump_speed = 12.42;
 	start_ground = height - 60 - blocksize;
 	ground = start_ground;
 	bool jump = false;
+	float angle = 100;
 
-	ALLEGRO_BITMAP *pause_background = al_load_bitmap("Graphics/Pause_background.png");
-	ALLEGRO_BITMAP *game_background = al_load_bitmap("Graphics/Game_background.jpg");
-	ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
+
+	// bg_images images
+	parallax_image BG;
+	ALLEGRO_BITMAP *bgImage = resize("Graphics/star1.png", width, height);
+	InitBackground(BG, 0, 0, 1, 0, width, height, -1, 1, bgImage);
+
+	//==============================================
+	//BACKGROUNDS IMAGES
+	//==============================================
+	backgrounds backgrounds;
+	backgrounds.game_background_up = al_load_bitmap("Graphics/Game_background1.jpg");
+	backgrounds.game_background_down = al_load_bitmap("Graphics/Game_background2.jpg");
+	explosion explosion;
+	explosion.image = al_load_bitmap("Graphics/Explosion.png");
+
+	//==============================================
+	//BAR IMAGES AND FONT
+	//==============================================
 	ALLEGRO_FONT *progress = al_load_ttf_font("Arcade_Classic.ttf", 11, 0);
 	ALLEGRO_BITMAP *bar = al_load_bitmap("Graphics/Bar.png");
 	ALLEGRO_BITMAP *bar_background = al_load_bitmap("Graphics/Bar_background.png");
-
-	al_register_event_source(event_queue, al_get_keyboard_event_source());
-	al_register_event_source(event_queue, al_get_timer_event_source(fps_timer));
 
 	//==============================================
 	//COLLIDE OBJECTS
@@ -82,13 +123,20 @@ void game(void)
 		case 7: coordsY[i] = start_ground - 7 * blocksize; break;
 		}
 	}
-	// variables for moving map
-	float map_max = coordsX[sizeX - 1];
+	/* variables for moving map */
+	// start of map
 	float map_min = 0;
+	// end of map
+	float map_max = coordsX[sizeX - 1];
 
 	//==============================================
 	//GAME LOOP
 	//==============================================
+
+	ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
+
+	al_register_event_source(event_queue, al_get_keyboard_event_source());
+	al_register_event_source(event_queue, al_get_timer_event_source(fps_timer));
 
 	while (!done)
 	{
@@ -126,21 +174,16 @@ void game(void)
 			}
 			case ALLEGRO_KEY_ESCAPE:
 			{	//pause
-				// rendering background
-				al_draw_scaled_bitmap(game_background, 0, 0, al_get_bitmap_width(game_background), al_get_bitmap_height(game_background), 0, 0, width, height, 0);
-				// rendering player
-				al_draw_bitmap(player.image, player.x, player.y + (blocksize - player.h), 0);
-				// rendering line start_ground
-				al_draw_line(0, start_ground + blocksize, width, start_ground + blocksize, al_map_rgb(0, 0, 0), 0);
-				// rendering objects
-				drawmap(map, coordsX, coordsY, player, collide_objects);
+				ALLEGRO_BITMAP *pause_image = al_create_bitmap(width, height);
+				al_set_target_bitmap(pause_image);
+				redraw(player, map, coordsX, coordsY, collide_objects, backgrounds, angle, collision, BG);
 				// progress
 				al_draw_scaled_bitmap(bar_background, 1, 1, al_get_bitmap_width(bar_background), al_get_bitmap_height(bar_background), (width / 2) - 110, height - (height - 20), al_get_bitmap_width(bar_background), al_get_bitmap_height(bar_background), ALLEGRO_ALIGN_CENTER);
 				al_draw_scaled_bitmap(bar, 0, 0, al_get_bitmap_width(bar), al_get_bitmap_height(bar), (width / 2) - 100, height - (height - 20), map_min / map_max*al_get_bitmap_width(bar), al_get_bitmap_height(bar), ALLEGRO_ALIGN_CENTER);
 				al_draw_textf(progress, al_map_rgb(255, 255, 200), (width / 2) + 122, height - (height - 20), ALLEGRO_ALIGN_CENTER, "%.f%%", map_min / map_max * 100);
-				al_draw_bitmap(pause_background, 0, 0, 0);
 				al_pause_event_queue(event_queue, 1);
-				if (pause() == 'm')
+				al_set_target_backbuffer(display);
+				if (pause(pause_image))
 				{
 					done = true;
 					main_menu_on = true;
@@ -151,11 +194,14 @@ void game(void)
 			}
 			}
 		}
-		//==============================================
-		//GAME UPDATE & RENDER
-		//==============================================
 		else if (ev.timer.source == fps_timer)
 		{
+			//==============================================
+			//GAME UPDATE
+			//==============================================
+
+			UpdateBackground(BG);
+
 			//==============================================
 			//JUMP
 			//==============================================
@@ -169,15 +215,10 @@ void game(void)
 			{
 				player.y = ground;
 			}
-			// rendering background
-			al_draw_scaled_bitmap(game_background, 0, 0, al_get_bitmap_width(game_background), al_get_bitmap_height(game_background), 0, 0, width, height, 0);
-			// rendering player
-			//al_draw_rectangle(player.x, player.y, player.x + player.w, player.y - player.h, al_map_rgb(0, 0, 0), 0);
-			al_draw_bitmap(player.image, player.x, player.y + (blocksize - player.h), 0);
-			// rendering line start_ground
-			al_draw_line(0, start_ground + blocksize, width, start_ground + blocksize, al_map_rgb(0, 0, 0), 0);
-			// rendering objects
-			drawmap(map, coordsX, coordsY, player, collide_objects);
+			//==============================================
+			//RENDER
+			//==============================================
+			redraw(player, map, coordsX, coordsY, collide_objects, backgrounds, angle, collision, BG);
 			// progress
 			if (map_min <= map_max)
 			{
@@ -188,23 +229,64 @@ void game(void)
 			else
 			{
 				// end of map
+				ALLEGRO_BITMAP *game_end = al_create_bitmap(width, height);
+				al_set_target_bitmap(game_end);
+				redraw(player, map, coordsX, coordsY, collide_objects, backgrounds, angle, collision, BG);
+				al_set_target_backbuffer(display);
+				end_of_map(game_end);
+				al_destroy_bitmap(game_end);
+				al_rest(0.5);
 				done = true;
 				main_menu_on = true;
+			}
+			//==============================================
+			//IF COLLISION
+			//==============================================
+			if (collision)
+			{
+				al_pause_event_queue(event_queue, 1);
+				for (int i = 0; i < NUM_EXPLOSIONS - 1; ++i)
+				{
+					redraw(player, map, coordsX, coordsY, collide_objects, backgrounds, angle, collision, BG);
+					drawExplosions(explosion, NUM_EXPLOSIONS, player);
+					al_flip_display();
+					al_clear_to_color(al_map_rgb(0, 0, 0));
+				}
+				ALLEGRO_BITMAP *collision_image = al_create_bitmap(width, height);
+				al_set_target_bitmap(collision_image);
+				redraw(player, map, coordsX, coordsY, collide_objects, backgrounds, angle, collision, BG);
+				drawExplosions(explosion, NUM_EXPLOSIONS, player);
+				al_set_target_backbuffer(display);
+				if (crash(collision_image) == 'r')
+				{
+					done = true;
+					replay = true;
+				}
+				else
+				{
+					done = true;
+					main_menu_on = true;
+				}
+				al_destroy_bitmap(collision_image);
 			}
 			al_flip_display();
 			al_clear_to_color(al_map_rgb(0, 0, 0));
 			map_min += speed;
 		}
 	}
-	// destroying objects
-	al_destroy_bitmap(pause_background);
+	/* destroying objects */
+	// destroying backgrounds
+	al_destroy_bitmap(backgrounds.game_background_up);
+	al_destroy_bitmap(backgrounds.game_background_down);
 	al_destroy_event_queue(event_queue);
 	al_destroy_font(progress);
 	al_destroy_bitmap(bar);
 	al_destroy_bitmap(bar_background);
-	al_destroy_bitmap(game_background);
 	al_destroy_bitmap(player.image);
 	Mask_Delete(player.mask);
+	// destroying bg_images
+	al_destroy_bitmap(bgImage);
+	al_destroy_bitmap(explosion.image);
 	for (int i = 0; i < elements; ++i)
 	{
 		al_destroy_bitmap(collide_objects[i].image);
@@ -219,4 +301,5 @@ void game(void)
 	delete[] coordsY;
 	filemap.close();
 	if (main_menu_on == true) menu();
+	if (replay == true) game();
 }

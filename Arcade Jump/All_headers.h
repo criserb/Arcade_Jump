@@ -8,6 +8,7 @@
 #include <allegro5\allegro_primitives.h>
 #include <allegro5\allegro_audio.h>
 #include <allegro5\allegro_acodec.h>
+#include "allegro5\allegro_video.h"
 #include <fstream>
 #include "PPCD.h"
 
@@ -18,12 +19,23 @@ void settings(void);
 void color_press(int *r, int *g, int *b, int selection, int max); // coloring selected option
 // game
 void game(void);
-char pause(void); // return m if user press main menu in pause menu, return g if user press continue in pause menu
+bool pause(ALLEGRO_BITMAP *pause_image); // return true if user press main menu in pause menu, return false if user press continue in pause menu
 // maps
 void loadmap(std::ifstream &filename, int **map); // loading map
-void drawmap(int **map, int *coordsX, int *coordsY, struct player &player, struct c_object *collide_objects); // drawing map
+void drawmap(int **map, int *coordsX, int *coordsY, struct player &player, struct c_object *collide_objects, bool &collision); // drawing map
 // intro
 void intro(void);
+// parallax functions
+void InitBackground(struct parallax_image &back, float x, float y, float velx, float vely, int width, int height, int dirX, int dirY, ALLEGRO_BITMAP *image);
+void UpdateBackground(struct parallax_image &back);
+void DrawBackground(struct parallax_image &back);
+// explosions
+void drawExplosions(struct explosion &explosion, int size, player &player);
+char crash(ALLEGRO_BITMAP *collision_image);
+void end_of_map(ALLEGRO_BITMAP *game_end);
+ALLEGRO_BITMAP *resize(const char *filename, int destination_width, int destination_height);
+
+
 
 // global variables
 #define blocksize 40
@@ -38,8 +50,8 @@ extern int speed; // speed of the map
 extern int ground;
 extern int start_ground;
 
-typedef struct player
-{
+//structures
+typedef struct player {
 	int w, h;
 	int x = 40; // position of player in X
 	int y; // position of player in Y
@@ -49,8 +61,33 @@ typedef struct player
 	mask_t *mask;
 }player;
 
-typedef struct c_object
-{
+typedef struct c_object {
 	ALLEGRO_BITMAP *image;
 	mask_t *mask;
 }c_object;
+
+typedef struct parallax_image {
+	float x;
+	float y;
+	float velX;
+	float velY;
+	int dirX;
+	int dirY;
+
+	int width;
+	int height;
+
+	ALLEGRO_BITMAP *image;
+}parallax_image;
+
+typedef struct backgrounds {
+	ALLEGRO_BITMAP *game_background_up;
+	ALLEGRO_BITMAP *game_background_down;
+}backgrounds;
+
+typedef struct explosion {
+	int count = 0, fx = 0, fy = 0;
+	int frame_width = 256;
+	int frame_height = 256;
+	ALLEGRO_BITMAP *image;
+}explosion;

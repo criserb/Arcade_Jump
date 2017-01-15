@@ -145,13 +145,18 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="parallax.cpp" />
+    <ClCompile Include="crash.cpp" />
+    <ClCompile Include="explosion.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
+    <ClCompile Include="map_end.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="pause.cpp" />
     <ClCompile Include="intro.cpp" />
     <ClCompile Include="PPCD.cpp" />
+    <ClCompile Include="resize_bitmap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="all_headers.h" />

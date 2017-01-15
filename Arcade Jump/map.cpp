@@ -12,9 +12,8 @@ bool ground_collision(player &player, int x, int y)
 	return false;
 }
 
-void drawmap(int **map, int *coordsX, int *coordsY, player &player, c_object *collide_objects)
+void drawmap(int **map, int *coordsX, int *coordsY, player &player, c_object *collide_objects, bool &collision)
 {
-	bool collision = false;
 	bool tile_collision = false;
 
 	for (int i = 0; i < sizeX; ++i)
@@ -30,7 +29,6 @@ void drawmap(int **map, int *coordsX, int *coordsY, player &player, c_object *co
 			case 2:
 				al_draw_bitmap(collide_objects[1].image, coordsX[i], coordsY[i], 0);
 				(Mask_Collide(player.mask, collide_objects[1].mask, player.x - coordsX[i], player.y - (coordsY[i]+1))) ? collision = true : collision = false;
-				//(Mask_Collide(player.mask, collide_objects[1].mask, player.x - coordsX[i], player.y - (coordsY[i] - blocksize))) ? tile_collision = true : tile_collision = false;
 				(ground_collision(player, coordsX[i], coordsY[i])) ? tile_collision = true : tile_collision = false;
 				if (coordsX[i] <= 0)
 				{
@@ -54,14 +52,6 @@ void drawmap(int **map, int *coordsX, int *coordsY, player &player, c_object *co
 				break;
 			}//switch
 
-			//FOR DEBUG
-			//if (collision)
-			//{
-			//	//al_draw_rectangle(width / 2, height / 2, width / 2 + blocksize, height / 2 - blocksize, al_map_rgb(0, 0, 0), 0);
-			//	Mask_Draw(player.mask, player.x, player.y - blocksize / 2);
-			//	Mask_Draw(collide_objects[1].mask, coordsX[i] - blocksize, coordsY[i] - blocksize / 2);
-			//}
-
 			//==============================================
 			//COLLISION DETECTION
 			//==============================================
@@ -70,9 +60,7 @@ void drawmap(int **map, int *coordsX, int *coordsY, player &player, c_object *co
 				ground = coordsY[i] - blocksize;
 
 			if (collision)
-			{
-				al_draw_rectangle(width / 2, height / 2, width / 2 + blocksize, height / 2 - blocksize, al_map_rgb(0, 0, 0), 0);
-			}
+				return;
 		}//if 
 		coordsX[i] -= speed;
 	}//for

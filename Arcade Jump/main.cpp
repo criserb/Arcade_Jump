@@ -12,7 +12,7 @@ int main(void)
 	if (!al_init())		// test allegro
 		al_show_native_message_box(display, "Arcade Jump", "ERROR", "ERROR WITH ALLEGRO", "Error with allegro", ALLEGRO_MESSAGEBOX_WARN);
 
-	al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);
+	al_set_new_display_flags(ALLEGRO_WINDOWED);
 	display = al_create_display(width, height);
 	al_set_window_title(display, "Arcade Jump");
 	al_hide_mouse_cursor(display);
@@ -31,6 +31,7 @@ int main(void)
 	al_init_image_addon();
 	al_init_font_addon();
 	al_init_ttf_addon();
+	al_init_video_addon();
 
 	intro();
 	menu();

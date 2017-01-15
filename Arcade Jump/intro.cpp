@@ -1,23 +1,15 @@
 #include "All_headers.h"
-#include "allegro5\allegro_video.h"
 
 static void video_display(ALLEGRO_VIDEO *video, ALLEGRO_FONT *skip)
 {
-	/* Videos often do not use square pixels - these return the scaled dimensions
-	* of the video frame.
-	*/
-	float scaled_w = al_get_video_scaled_width(video);
-	float scaled_h = al_get_video_scaled_height(video);
-	/* Get the currently visible frame of the video, based on clock
-	* time.
-	*/
 	ALLEGRO_BITMAP *frame = al_get_video_frame(video);
 
 	if (!frame)
 		return;
 
 	/* Display the frame. */
-	al_draw_bitmap(frame, 0, 0, 0);
+	//al_draw_bitmap(frame, 0, 0, 0);
+	al_draw_scaled_bitmap(frame, 0, 0, al_get_bitmap_width(frame), al_get_bitmap_height(frame), 0, 0, width, height, 0);
 	al_draw_text(skip, al_map_rgb(color[0], color[1], color[2]), width - 50, (height / 2) + 200, ALLEGRO_ALIGN_RIGHT, "PRESS SPACE TO SKIP INTRO");
 	al_flip_display();
 	al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -28,7 +20,6 @@ void intro(void)
 	bool redraw = true;
 	bool use_frame_events = false;
 
-	al_init_video_addon();
 	al_reserve_samples(1);
 
 	al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
@@ -59,10 +50,6 @@ void intro(void)
 				al_close_video(intro_vid);
 				done = true;
 			}
-			break;
-		case ALLEGRO_EVENT_DISPLAY_RESIZE:
-			al_acknowledge_resize(display);
-			al_clear_to_color(al_map_rgb(0, 0, 0));
 			break;
 
 		case ALLEGRO_EVENT_TIMER:
