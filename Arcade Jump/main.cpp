@@ -1,10 +1,8 @@
 #include "all_headers.h"
 
-ALLEGRO_TIMER *fps_timer; 
 ALLEGRO_DISPLAY *display;
 int width = 640;
 int height = 480;
-int fps = 60;
 
 int main(void)
 {
@@ -20,7 +18,7 @@ int main(void)
 	if (!display)		//test display
 		al_show_native_message_box(display, "Arcade Jump", "ERROR", "ERROR WITH DISPLAY", "Error with display", ALLEGRO_MESSAGEBOX_WARN);
 
-	fps_timer = al_create_timer(1.0 / fps);
+	ALLEGRO_TIMER *fps_timer = al_create_timer(1.0 / fps);
 	al_start_timer(fps_timer);
 
 	//addon init

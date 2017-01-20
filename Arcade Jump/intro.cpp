@@ -22,19 +22,19 @@ void intro(void)
 
 	al_reserve_samples(1);
 
-	al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
-	ALLEGRO_BITMAP *bitmap;
 	ALLEGRO_VIDEO *intro_vid = al_open_video("Intro/Intro.ogv");
 	ALLEGRO_EVENT vid_ev;
 	ALLEGRO_FONT *skip = al_load_ttf_font("Arcade_Classic.ttf", 18, 0);
 
 	ALLEGRO_EVENT_QUEUE *vid_event_queue = al_create_event_queue();
+	ALLEGRO_TIMER *fps_timer = al_create_timer(1.0 / fps);
 
 	al_register_event_source(vid_event_queue, al_get_video_event_source(intro_vid));
 	al_register_event_source(vid_event_queue, al_get_display_event_source(display));
 	al_register_event_source(vid_event_queue, al_get_timer_event_source(fps_timer));
 	al_register_event_source(vid_event_queue, al_get_keyboard_event_source());
 
+	al_start_timer(fps_timer);
 	al_start_video(intro_vid, al_get_default_mixer());
 
 	bool done = false;
@@ -75,4 +75,5 @@ void intro(void)
 	}
 	al_destroy_event_queue(vid_event_queue);
 	al_destroy_font(skip);
+	al_destroy_timer(fps_timer);
 }

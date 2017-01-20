@@ -1,6 +1,6 @@
 #include "all_headers.h"
 
-ALLEGRO_BITMAP *resize(const char *filename, int destination_width, int destination_height)
+ALLEGRO_BITMAP *resize_bitmap(const char *filename, int destination_width, int destination_height)
 {
 	ALLEGRO_BITMAP *resized_bmp, *loaded_bmp, *prev_target;
 

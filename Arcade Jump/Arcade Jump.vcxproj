@@ -156,12 +156,14 @@
     <ClCompile Include="pause.cpp" />
     <ClCompile Include="intro.cpp" />
     <ClCompile Include="PPCD.cpp" />
+    <ClCompile Include="redraw.cpp" />
     <ClCompile Include="resize_bitmap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="all_headers.h" />
     <ClInclude Include="PPCD.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="structures.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="map1.txt" />

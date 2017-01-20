@@ -4,38 +4,55 @@ int r[] = { 196,196,196,196,196,196 }, g[] = { 119,119,119,119,119,119 }, b[] = 
 int color[] = { 255, 240, 110 };
 
 // menu variables
-ALLEGRO_BITMAP *cursor;
-ALLEGRO_BITMAP *menu_background;
-ALLEGRO_BITMAP *logo;
-ALLEGRO_FONT *menu_item;
-ALLEGRO_EVENT_QUEUE *menu_event_queue;
-ALLEGRO_SAMPLE *click;
-int cord_cursor_x;
-int cord_cursor_y;
+int att_count;
 
 // menu
 void menu(void)
 {
 	bool done = false;
 	bool game_on = false;
+	bool settings_on = false;
 
-	cord_cursor_x = (width / 2) - 120;
-	cord_cursor_y = ((height / 2) - 4) + 30;
+	int cord_cursor_x = (width / 2) - 120;
+	int cord_cursor_y = ((height / 2) - 4) + 30;
 
-	cursor = al_load_bitmap("Graphics/Cursor_small.png");
-	menu_background = al_load_bitmap("Graphics/Menu_background.jpg");
-	menu_item = al_load_ttf_font("Arcade_Classic.ttf", 18, 0);
-	menu_event_queue = al_create_event_queue();
-	logo = al_load_bitmap("Graphics/Logo.png");
-	click = al_load_sample("Sounds/Click.ogg");
+	ALLEGRO_BITMAP *cursor = al_load_bitmap("Graphics/Cursor_small.png");
+	ALLEGRO_BITMAP *menu_background = resize_bitmap("Graphics/Menu_background.jpg", width, height);
+	ALLEGRO_FONT *menu_item = al_load_ttf_font("Arcade_Classic.ttf", 18, 0);
+	ALLEGRO_FONT *credit = al_load_ttf_font("Arcade_Classic.ttf", 10, 0);
+	ALLEGRO_BITMAP *logo = al_load_bitmap("Graphics/Logo.png");
+	ALLEGRO_SAMPLE *click = al_load_sample("Sounds/Click.ogg");
+	ALLEGRO_SAMPLE *swish = al_load_sample("Sounds/Swish.ogg");
+	ALLEGRO_EVENT_QUEUE *menu_event_queue = al_create_event_queue();
 
 	al_reserve_samples(1);
 
 	al_register_event_source(menu_event_queue, al_get_keyboard_event_source());
-	al_register_event_source(menu_event_queue, al_get_timer_event_source(fps_timer));
 
 	while (!done)
 	{
+		//==============================================
+		//CUROSR POSITION
+		//==============================================
+		if (cord_cursor_y == ((height / 2) - 4) + 30)
+			color_press(r, g, b, 0, 3);
+		if (cord_cursor_y == ((height / 2) - 4) + 60)
+			color_press(r, g, b, 1, 3);
+		if (cord_cursor_y == ((height / 2) - 4) + 90)
+			color_press(r, g, b, 2, 3);
+		//==============================================
+		//RENDERING
+		//==============================================
+		al_draw_bitmap(menu_background, 0, 0, 0);
+		al_draw_scaled_bitmap(logo, 0, 0, al_get_bitmap_width(logo), al_get_bitmap_height(logo), width / 4, 0, width / 2, height / 2, 0);
+		al_draw_text(menu_item, al_map_rgb(r[0], g[0], b[0]), width / 2, (height / 2) + 30, ALLEGRO_ALIGN_CENTRE, "START GAME");
+		al_draw_text(menu_item, al_map_rgb(r[1], g[1], b[1]), width / 2, (height / 2) + 60, ALLEGRO_ALIGN_CENTRE, "SETTINGS");
+		al_draw_text(menu_item, al_map_rgb(r[2], g[2], b[2]), width / 2, (height / 2) + 90, ALLEGRO_ALIGN_CENTRE, "EXIT");
+		al_draw_text(credit, al_map_rgb(color[0], color[1], color[2]), 20, height - 20, ALLEGRO_ALIGN_LEFT, "SOUND EFFECTS FROM: HTTP://WWW.FREESFX.CO.UK");
+		al_draw_bitmap(cursor, cord_cursor_x, cord_cursor_y, 0);
+		al_flip_display();
+		al_clear_to_color(al_map_rgb(0, 0, 0));
+
 		ALLEGRO_EVENT menu_ev;
 		al_wait_for_event(menu_event_queue, &menu_ev);
 		if (menu_ev.type == ALLEGRO_EVENT_KEY_DOWN)
@@ -59,14 +76,20 @@ void menu(void)
 				al_play_sample(click, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, 0);
 				if (cord_cursor_y == ((height / 2) - 4) + 30)
 				{
+					// fading screen
+					al_stop_samples();
+					al_play_sample(swish, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, 0);
+					al_rest(0.4);
 					// start game
 					done = true;
 					game_on = true;
+					att_count = 1;
 				}
 				else if (cord_cursor_y == ((height / 2) - 4) + 60)
 				{
 					// settings
-					settings();
+					settings_on = true;
+					done = true;
 					cord_cursor_x = (width / 2) - 120;
 					cord_cursor_y = ((height / 2) - 4) + 30;
 				}
@@ -84,48 +107,72 @@ void menu(void)
 			}
 			}
 		}
-		else if (menu_ev.type == ALLEGRO_EVENT_TIMER)
-		{
-			if (cord_cursor_y == ((height / 2) - 4) + 30)
-				color_press(r, g, b, 0, 3);
-			if (cord_cursor_y == ((height / 2) - 4) + 60)
-				color_press(r, g, b, 1, 3);
-			if (cord_cursor_y == ((height / 2) - 4) + 90)
-				color_press(r, g, b, 2, 3);
-			// rendering
-			al_draw_scaled_bitmap(menu_background, 0, 0, al_get_bitmap_width(menu_background), al_get_bitmap_height(menu_background), 0, 0, width, height, 0);
-			al_draw_scaled_bitmap(logo, 0, 0, al_get_bitmap_width(logo), al_get_bitmap_height(logo), width / 4, 0, width / 2, height / 2, 0);
-			al_draw_text(menu_item, al_map_rgb(r[0], g[0], b[0]), width / 2, (height / 2) + 30, ALLEGRO_ALIGN_CENTRE, "START GAME");
-			al_draw_text(menu_item, al_map_rgb(r[1], g[1], b[1]), width / 2, (height / 2) + 60, ALLEGRO_ALIGN_CENTRE, "SETTINGS");
-			al_draw_text(menu_item, al_map_rgb(r[2], g[2], b[2]), width / 2, (height / 2) + 90, ALLEGRO_ALIGN_CENTRE, "EXIT");
-			al_draw_bitmap(cursor, cord_cursor_x, cord_cursor_y, 0);
-			al_flip_display();
-			al_clear_to_color(al_map_rgb(0, 0, 0));
-		}
 	}
 	// destroying objects
 	al_destroy_font(menu_item);
+	al_destroy_font(credit);
 	al_destroy_bitmap(menu_background);
 	al_destroy_bitmap(cursor);
 	al_destroy_bitmap(logo);
 	al_destroy_event_queue(menu_event_queue);
 	al_destroy_sample(click);
+	al_destroy_sample(swish);
 	if (game_on == true) game();
+	if (settings_on == true) settings(cord_cursor_x, cord_cursor_y);
 }
 
 // settings options
-void settings()
+void settings(int &cord_cursor_x, int &cord_cursor_y)
 {
-	ALLEGRO_MONITOR_INFO info;
+	bool menu_on = false;
 	bool done = false;
+	ALLEGRO_MONITOR_INFO info;
+	ALLEGRO_BITMAP *cursor = al_load_bitmap("Graphics/Cursor_small.png");
+	ALLEGRO_BITMAP *menu_background = resize_bitmap("Graphics/Menu_background.jpg", width, height);
+	ALLEGRO_FONT *menu_item = al_load_ttf_font("Arcade_Classic.ttf", 18, 0);
+	ALLEGRO_SAMPLE *click = al_load_sample("Sounds/Click.ogg");
+	ALLEGRO_EVENT_QUEUE *menu_event_queue = al_create_event_queue();
 	ALLEGRO_FONT *settings_item = al_load_ttf_font("Arcade_Classic.ttf", 18, 0);
 	ALLEGRO_FONT *escape = al_load_ttf_font("Arcade_Classic.ttf", 12, 0);
 
 	cord_cursor_x = (width / 2) - 120;
 	cord_cursor_y = ((height / 2) - 4) + 30;
 
+	al_register_event_source(menu_event_queue, al_get_keyboard_event_source());
+
 	while (!done)
 	{
+		//==============================================
+		//CUROSR POSITION
+		//==============================================
+		if (cord_cursor_y == ((height / 2) - 4) + 30)
+			color_press(r, g, b, 0, 6);
+		else if (cord_cursor_y == ((height / 2) - 4) + 60)
+			color_press(r, g, b, 1, 6);
+		else if (cord_cursor_y == ((height / 2) - 4) + 90)
+			color_press(r, g, b, 2, 6);
+		else if (cord_cursor_y == ((height / 2) - 4) + 120)
+			color_press(r, g, b, 3, 6);
+		else if (cord_cursor_y == ((height / 2) - 4) + 150)
+			color_press(r, g, b, 4, 6);
+		else if (cord_cursor_y == ((height / 2) - 4) + 180)
+			color_press(r, g, b, 5, 6);
+		//==============================================
+		//RENDERING
+		//==============================================
+		al_draw_bitmap(menu_background, 0, 0, 0);
+		al_draw_text(settings_item, al_map_rgb(r[0], g[0], b[0]), width / 2, (height / 2) + 30, ALLEGRO_ALIGN_CENTRE, "FULLSCREEN");
+		al_draw_text(settings_item, al_map_rgb(r[1], g[1], b[1]), width / 2, (height / 2) + 60, ALLEGRO_ALIGN_CENTRE, "WINDOWED");
+		al_draw_text(settings_item, al_map_rgb(r[2], g[2], b[2]), width / 2, (height / 2) + 90, ALLEGRO_ALIGN_CENTRE, "640x480");
+		al_draw_text(settings_item, al_map_rgb(r[3], g[3], b[3]), width / 2, (height / 2) + 120, ALLEGRO_ALIGN_CENTRE, "800x600");
+		al_draw_text(settings_item, al_map_rgb(r[4], g[4], b[4]), width / 2, (height / 2) + 150, ALLEGRO_ALIGN_CENTRE, "1280x720");
+		al_draw_text(settings_item, al_map_rgb(r[5], g[5], b[5]), width / 2, (height / 2) + 180, ALLEGRO_ALIGN_CENTRE, "1920x1080");
+		al_draw_bitmap(cursor, cord_cursor_x, cord_cursor_y, 0);
+		al_draw_bitmap(cursor, 0, height - 30, ALLEGRO_FLIP_HORIZONTAL);
+		al_draw_text(escape, al_map_rgb(color[0], color[1], color[2]), 30, height - 25, ALLEGRO_ALIGN_LEFT, "PRESS ESC TO BACK");
+		al_flip_display();
+		al_clear_to_color(al_map_rgb(0, 0, 0));
+
 		ALLEGRO_EVENT settings_ev;
 		al_wait_for_event(menu_event_queue, &settings_ev);
 
@@ -207,41 +254,20 @@ void settings()
 			case ALLEGRO_KEY_ESCAPE:
 				al_stop_samples();
 				al_play_sample(click, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, 0);
+				menu_on = true;
 				done = true;
 				break;
 			}
 		}
-		else if (settings_ev.type == ALLEGRO_EVENT_TIMER)
-		{
-			if (cord_cursor_y == ((height / 2) - 4) + 30)
-				color_press(r, g, b, 0, 6);
-			else if (cord_cursor_y == ((height / 2) - 4) + 60)
-				color_press(r, g, b, 1, 6);
-			else if (cord_cursor_y == ((height / 2) - 4) + 90)
-				color_press(r, g, b, 2, 6);
-			else if (cord_cursor_y == ((height / 2) - 4) + 120)
-				color_press(r, g, b, 3, 6);
-			else if (cord_cursor_y == ((height / 2) - 4) + 150)
-				color_press(r, g, b, 4, 6);
-			else if (cord_cursor_y == ((height / 2) - 4) + 180)
-				color_press(r, g, b, 5, 6);
-			// rendering
-			al_draw_scaled_bitmap(menu_background, 0, 0, al_get_bitmap_width(menu_background), al_get_bitmap_height(menu_background), 0, 0, width, height, 0);
-			al_draw_text(settings_item, al_map_rgb(r[0], g[0], b[0]), width / 2, (height / 2) + 30, ALLEGRO_ALIGN_CENTRE, "FULLSCREEN");
-			al_draw_text(settings_item, al_map_rgb(r[1], g[1], b[1]), width / 2, (height / 2) + 60, ALLEGRO_ALIGN_CENTRE, "WINDOWED");
-			al_draw_text(settings_item, al_map_rgb(r[2], g[2], b[2]), width / 2, (height / 2) + 90, ALLEGRO_ALIGN_CENTRE, "640x480");
-			al_draw_text(settings_item, al_map_rgb(r[3], g[3], b[3]), width / 2, (height / 2) + 120, ALLEGRO_ALIGN_CENTRE, "800x600");
-			al_draw_text(settings_item, al_map_rgb(r[4], g[4], b[4]), width / 2, (height / 2) + 150, ALLEGRO_ALIGN_CENTRE, "1280x720");
-			al_draw_text(settings_item, al_map_rgb(r[5], g[5], b[5]), width / 2, (height / 2) + 180, ALLEGRO_ALIGN_CENTRE, "1920x1080");
-			al_draw_bitmap(cursor, cord_cursor_x, cord_cursor_y, 0);
-			al_draw_bitmap(cursor, 0, height - 30, ALLEGRO_FLIP_HORIZONTAL);
-			al_draw_text(escape, al_map_rgb(color[0], color[1], color[2]), 30, height - 25, ALLEGRO_ALIGN_LEFT, "PRESS ESC TO BACK");
-			al_flip_display();
-			al_clear_to_color(al_map_rgb(0, 0, 0));
-		}
 	}
+	al_destroy_font(menu_item);
+	al_destroy_bitmap(menu_background);
+	al_destroy_bitmap(cursor);
+	al_destroy_event_queue(menu_event_queue);
+	al_destroy_sample(click);
 	al_destroy_font(settings_item);
 	al_destroy_font(escape);
+	if (menu_on) menu();
 }
 
 // coloring buttons

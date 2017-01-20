@@ -1,60 +1,45 @@
 #include "all_headers.h"
 
-const int initial_speed = 5;
-int speed = initial_speed; // speed of moving map
-int start_ground;
-int ground;
-const int NUM_EXPLOSIONS = 32;
-
-void redraw(player &player, int **map, int *coordsX, int *coordsY, c_object *collide_objects, backgrounds backgrounds, float &angle, bool &collision, parallax_image BG)
-{
-	// rendering game up_background
-	al_draw_scaled_bitmap(backgrounds.game_background_up, 0, 0, al_get_bitmap_width(backgrounds.game_background_up), al_get_bitmap_height(backgrounds.game_background_up),
-		0, 0, width, start_ground + blocksize, 0);
-	// rendering parralax effect
-	DrawBackground(BG);
-	// rendering game down_background
-	al_draw_scaled_bitmap(backgrounds.game_background_down, 0, height / 1.5, al_get_bitmap_width(backgrounds.game_background_down), al_get_bitmap_height(backgrounds.game_background_down),
-		0, start_ground + blocksize, width, height, 0);
-	// rendering player
-	//al_draw_bitmap(player.image, player.x, player.y + (blocksize - player.h), 0);
-	al_draw_rotated_bitmap(player.image, 20, 20, player.x + 20, player.y + 20, -angle, 0);
-	// rendering map
-	drawmap(map, coordsX, coordsY, player, collide_objects, collision);
-	if (!collision)
-	{
-		angle -= 0.1;
-		if (angle <= 1)
-			angle -= 0.1;
-		if (angle <= 0)
-			angle = 100;
-	}
-}
+ALLEGRO_COLOR tint_color;
 
 void game(void)
 {
+	tint_color = al_map_rgb(255, 40, 40);
+	const int initial_speed = 5;
+	const int NUM_EXPLOSIONS = 32;
 	bool collision = false;
 	bool done = false;
 	bool main_menu_on = false;
 	bool replay = false;
 	float jump_speed = 12.42;
-	start_ground = height - 60 - blocksize;
-	ground = start_ground;
+	int start_ground = height - 60 - blocksize;
+	int ground = start_ground;
 	bool jump = false;
 	float angle = 100;
+	int map_speed = initial_speed; // map_speed of moving map
+	bool color_on = false;
+	ALLEGRO_SAMPLE *sample1 = al_load_sample("Sounds/Arcade_background_music.ogg");
+	ALLEGRO_SAMPLE_INSTANCE *music = al_create_sample_instance(sample1);
+	al_attach_sample_instance_to_mixer(music, al_get_default_mixer());
+	//==============================================
+	//ATTEMPT COUNT
+	//==============================================
+	ALLEGRO_FONT *att_font = al_load_ttf_font("Arcade_Classic.ttf", 32, 0);
+	int att_coordx = 0;
 
-
-	// bg_images images
+	//==============================================
+	//PARALLAX IMAGES
+	//==============================================
 	parallax_image BG;
-	ALLEGRO_BITMAP *bgImage = resize("Graphics/star1.png", width, height);
+	ALLEGRO_BITMAP *bgImage = resize_bitmap("Graphics/star1.png", width, height);
 	InitBackground(BG, 0, 0, 1, 0, width, height, -1, 1, bgImage);
 
 	//==============================================
 	//BACKGROUNDS IMAGES
 	//==============================================
-	backgrounds backgrounds;
-	backgrounds.game_background_up = al_load_bitmap("Graphics/Game_background1.jpg");
-	backgrounds.game_background_down = al_load_bitmap("Graphics/Game_background2.jpg");
+	game_backgrounds game_backgrounds;
+	game_backgrounds.game_background_up = al_load_bitmap("Graphics/Game_background1.jpg");
+	game_backgrounds.game_background_down = al_load_bitmap("Graphics/Game_background2.jpg");
 	explosion explosion;
 	explosion.image = al_load_bitmap("Graphics/Explosion.png");
 
@@ -85,16 +70,17 @@ void game(void)
 	//PLAYER
 	//==============================================
 
-	player player;
-	player.image = al_load_bitmap("Graphics/Avatar.png");
-	player.mask = Mask_New(player.image);
-	player.w = al_get_bitmap_width(player.image);
-	player.h = al_get_bitmap_height(player.image);
-	player.y = start_ground;
+	avatar avatar;
+	avatar.image = al_load_bitmap("Graphics/Star_avatar.png");
+	avatar.mask = Mask_New(avatar.image);
+	avatar.w = al_get_bitmap_width(avatar.image);
+	avatar.h = al_get_bitmap_height(avatar.image);
+	avatar.y = start_ground;
 
 	//==============================================
 	//MAP
 	//==============================================
+	int sizeX; // elements in the map
 
 	std::ifstream filemap;
 	filemap.open("map1.txt");
@@ -134,9 +120,14 @@ void game(void)
 	//==============================================
 
 	ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
+	ALLEGRO_TIMER *fps_timer = al_create_timer(1.0 / fps);
 
 	al_register_event_source(event_queue, al_get_keyboard_event_source());
 	al_register_event_source(event_queue, al_get_timer_event_source(fps_timer));
+	al_start_timer(fps_timer);
+
+	al_stop_samples();
+	al_play_sample_instance(music);
 
 	while (!done)
 	{
@@ -151,32 +142,40 @@ void game(void)
 			{
 				if (jump)
 				{
-					player.vely = -jump_speed;
+					avatar.vely = -jump_speed;
 					jump = false;
 				}
 				break;
 			}
 			case ALLEGRO_KEY_A:
-			{	// speed
-				speed += 4;
+			{	// map_speed
+				map_speed += 4;
 				break;
 			}
 			case ALLEGRO_KEY_S:
-			{	// speed
-				if (speed > initial_speed)
-					speed -= 4;
+			{	// map_speed
+				if (map_speed > initial_speed)
+					map_speed -= 4;
 				break;
 			}
 			case ALLEGRO_KEY_D:
-			{	// speed
-				speed = initial_speed;
+			{	// map_speed
+				map_speed = initial_speed;
 				break;
 			}
 			case ALLEGRO_KEY_ESCAPE:
 			{	//pause
+				unsigned int sample_position = al_get_sample_instance_position(music);
+				al_set_sample_instance_playing(music, 0);
 				ALLEGRO_BITMAP *pause_image = al_create_bitmap(width, height);
 				al_set_target_bitmap(pause_image);
-				redraw(player, map, coordsX, coordsY, collide_objects, backgrounds, angle, collision, BG);
+				redraw(avatar, map, sizeX, map_speed, ground, start_ground, coordsX, coordsY, collide_objects, game_backgrounds, angle, collision, BG, color_on);
+				// attempt
+				if (att_coordx > -height)
+				{
+					al_draw_textf(att_font, al_map_rgb(color[0], color[1], color[2]), (width / 2) + att_coordx, height / 2 - height / 4, ALLEGRO_ALIGN_CENTER, "ATTEMPT : %d", att_count);
+					att_coordx -= map_speed / 2;
+				}
 				// progress
 				al_draw_scaled_bitmap(bar_background, 1, 1, al_get_bitmap_width(bar_background), al_get_bitmap_height(bar_background), (width / 2) - 110, height - (height - 20), al_get_bitmap_width(bar_background), al_get_bitmap_height(bar_background), ALLEGRO_ALIGN_CENTER);
 				al_draw_scaled_bitmap(bar, 0, 0, al_get_bitmap_width(bar), al_get_bitmap_height(bar), (width / 2) - 100, height - (height - 20), map_min / map_max*al_get_bitmap_width(bar), al_get_bitmap_height(bar), ALLEGRO_ALIGN_CENTER);
@@ -189,7 +188,11 @@ void game(void)
 					main_menu_on = true;
 				}
 				else
+				{
 					al_pause_event_queue(event_queue, 0);
+					al_set_sample_instance_position(music, sample_position);
+					al_set_sample_instance_playing(music, 1);
+				}
 				break;
 			}
 			}
@@ -206,19 +209,27 @@ void game(void)
 			//JUMP
 			//==============================================
 			if (!jump)
-				player.vely += player.gravity;
+				avatar.vely += avatar.gravity;
 			else
-				player.vely = 0;
-			player.y += player.vely;
-			jump = (player.y >= ground);
+				avatar.vely = 0;
+			avatar.y += avatar.vely;
+			jump = (avatar.y >= ground);
 			if (jump)
 			{
-				player.y = ground;
+				avatar.y = ground;
 			}
 			//==============================================
 			//RENDER
 			//==============================================
-			redraw(player, map, coordsX, coordsY, collide_objects, backgrounds, angle, collision, BG);
+			redraw(avatar, map, sizeX, map_speed, ground, start_ground, coordsX, coordsY, collide_objects, game_backgrounds, angle, collision, BG, color_on);
+			// attempt
+			if (att_coordx > -height)
+			{
+				al_draw_textf(att_font, al_map_rgb(color[0], color[1], color[2]), (width / 2) + att_coordx, height / 2 - height / 4, ALLEGRO_ALIGN_CENTER, "ATTEMPT : %d", att_count);
+				if (att_count % 5 == 0)
+					al_draw_text(att_font, al_map_rgb(color[0], color[1], color[2]), (width / 2) + att_coordx, height / 2 - (height / 4) + 40, ALLEGRO_ALIGN_CENTER, "C'MON YOU CAN DO IT!");
+				att_coordx -= map_speed / 2;
+			}
 			// progress
 			if (map_min <= map_max)
 			{
@@ -231,11 +242,10 @@ void game(void)
 				// end of map
 				ALLEGRO_BITMAP *game_end = al_create_bitmap(width, height);
 				al_set_target_bitmap(game_end);
-				redraw(player, map, coordsX, coordsY, collide_objects, backgrounds, angle, collision, BG);
+				redraw(avatar, map, sizeX, map_speed, ground, start_ground, coordsX, coordsY, collide_objects, game_backgrounds, angle, collision, BG, color_on);
 				al_set_target_backbuffer(display);
 				end_of_map(game_end);
 				al_destroy_bitmap(game_end);
-				al_rest(0.5);
 				done = true;
 				main_menu_on = true;
 			}
@@ -245,48 +255,62 @@ void game(void)
 			if (collision)
 			{
 				al_pause_event_queue(event_queue, 1);
+				ALLEGRO_SAMPLE *crash_sound = al_load_sample("Sounds/Plastic_crash.ogg");
+				al_reserve_samples(1);
+				al_stop_sample_instance(music);
+				al_play_sample(crash_sound, 1, 0, 0.8, ALLEGRO_PLAYMODE_ONCE, 0);
 				for (int i = 0; i < NUM_EXPLOSIONS - 1; ++i)
 				{
-					redraw(player, map, coordsX, coordsY, collide_objects, backgrounds, angle, collision, BG);
-					drawExplosions(explosion, NUM_EXPLOSIONS, player);
+					redraw(avatar, map, sizeX, map_speed, ground, start_ground, coordsX, coordsY, collide_objects, game_backgrounds, angle, collision, BG, color_on);
+					drawExplosions(explosion, 256, 256, NUM_EXPLOSIONS, avatar, color_on);
 					al_flip_display();
 					al_clear_to_color(al_map_rgb(0, 0, 0));
 				}
 				ALLEGRO_BITMAP *collision_image = al_create_bitmap(width, height);
 				al_set_target_bitmap(collision_image);
-				redraw(player, map, coordsX, coordsY, collide_objects, backgrounds, angle, collision, BG);
-				drawExplosions(explosion, NUM_EXPLOSIONS, player);
+				redraw(avatar, map, sizeX, map_speed, ground, start_ground, coordsX, coordsY, collide_objects, game_backgrounds, angle, collision, BG, color_on);
+				drawExplosions(explosion, 256, 256, NUM_EXPLOSIONS, avatar, color_on);
 				al_set_target_backbuffer(display);
 				if (crash(collision_image) == 'r')
 				{
 					done = true;
 					replay = true;
+					++att_count;
 				}
 				else
 				{
 					done = true;
 					main_menu_on = true;
 				}
+				al_destroy_sample(crash_sound);
 				al_destroy_bitmap(collision_image);
 			}
 			al_flip_display();
 			al_clear_to_color(al_map_rgb(0, 0, 0));
-			map_min += speed;
+			map_min += map_speed;
+			if ((map_min / map_max * 100) >= 59)
+				color_on = true;
 		}
 	}
-	/* destroying objects */
-	// destroying backgrounds
-	al_destroy_bitmap(backgrounds.game_background_up);
-	al_destroy_bitmap(backgrounds.game_background_down);
+	//==============================================
+	//DESTROYING OBJECTS
+	//==============================================
+	// destroying game_backgrounds
+	al_destroy_bitmap(game_backgrounds.game_background_up);
+	al_destroy_bitmap(game_backgrounds.game_background_down);
 	al_destroy_event_queue(event_queue);
 	al_destroy_font(progress);
+	al_destroy_font(att_font);
 	al_destroy_bitmap(bar);
 	al_destroy_bitmap(bar_background);
-	al_destroy_bitmap(player.image);
-	Mask_Delete(player.mask);
+	al_destroy_bitmap(avatar.image);
+	Mask_Delete(avatar.mask);
 	// destroying bg_images
 	al_destroy_bitmap(bgImage);
 	al_destroy_bitmap(explosion.image);
+	al_destroy_timer(fps_timer);
+	al_destroy_sample_instance(music);
+	al_destroy_sample(sample1);
 	for (int i = 0; i < elements; ++i)
 	{
 		al_destroy_bitmap(collide_objects[i].image);

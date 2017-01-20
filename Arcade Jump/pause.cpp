@@ -18,10 +18,28 @@ bool pause(ALLEGRO_BITMAP *pause_image)
 	ALLEGRO_BITMAP *pause_background = al_load_bitmap("Graphics/Pause_background.png");
 
 	al_register_event_source(pause_event_queue, al_get_keyboard_event_source());
-	al_register_event_source(pause_event_queue, al_get_timer_event_source(fps_timer));
 
 	while (!done)
 	{
+		//==============================================
+		//CURSOR POSITION
+		//==============================================
+		if (cord_cursor_y == ((height / 2) - 4) + 30)
+			color_press(r, g, b, 0, 2);
+		if (cord_cursor_y == ((height / 2) - 4) + 60)
+			color_press(r, g, b, 1, 2);
+		//==============================================
+		//RENDERING
+		//==============================================
+		al_draw_bitmap(pause_image, 0, 0, 0);
+		al_draw_bitmap(pause_background, 0, 0, 0);
+		al_draw_text(pause_title, al_map_rgb(color[0], color[1], color[2]), width / 2, (height / 2) - 120, ALLEGRO_ALIGN_CENTRE, "PAUSE");
+		al_draw_text(pause_item, al_map_rgb(r[0], g[0], b[0]), width / 2, (height / 2) + 30, ALLEGRO_ALIGN_CENTRE, "RETURN TO GAME");
+		al_draw_text(pause_item, al_map_rgb(r[1], g[1], b[1]), width / 2, (height / 2) + 60, ALLEGRO_ALIGN_CENTRE, "BACK TO MAIN MENU");
+		al_draw_bitmap(cursor, cord_cursor_x, cord_cursor_y, 0);
+		al_flip_display();
+		al_clear_to_color(al_map_rgb(0, 0, 0));
+
 		ALLEGRO_EVENT pause_ev;
 		al_wait_for_event(pause_event_queue, &pause_ev);
 		if (pause_ev.type == ALLEGRO_EVENT_KEY_DOWN)
@@ -57,22 +75,6 @@ bool pause(ALLEGRO_BITMAP *pause_image)
 				}
 				break;
 			}
-		}
-		else if (pause_ev.type == ALLEGRO_EVENT_TIMER)
-		{
-			if (cord_cursor_y == ((height / 2) - 4) + 30)
-				color_press(r, g, b, 0, 2);
-			if (cord_cursor_y == ((height / 2) - 4) + 60)
-				color_press(r, g, b, 1, 2);
-			// rendering
-			al_draw_bitmap(pause_image, 0, 0, 0);
-			al_draw_bitmap(pause_background, 0, 0, 0);
-			al_draw_text(pause_title, al_map_rgb(color[0], color[1], color[2]), width / 2, (height / 2) - 120, ALLEGRO_ALIGN_CENTRE, "PAUSE");
-			al_draw_text(pause_item, al_map_rgb(r[0], g[0], b[0]), width / 2, (height / 2) + 30, ALLEGRO_ALIGN_CENTRE, "RETURN TO GAME");
-			al_draw_text(pause_item, al_map_rgb(r[1], g[1], b[1]), width / 2, (height / 2) + 60, ALLEGRO_ALIGN_CENTRE, "BACK TO MAIN MENU");
-			al_draw_bitmap(cursor, cord_cursor_x, cord_cursor_y, 0);
-			al_flip_display();
-			al_clear_to_color(al_map_rgb(0, 0, 0));
 		}
 	}
 	// destroying objects
