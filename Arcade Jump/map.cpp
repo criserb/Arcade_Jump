@@ -72,8 +72,8 @@ void drawmap(int **map, int &sizeX, int &map_speed, int *coordsX, int *coordsY, 
 			if (tile_collision)
 				ground = coordsY[i] - blocksize;
 
-			/*if (collision)
-				return;*/
+			if (collision)
+				return;
 		}//if 
 		coordsX[i] -= map_speed;
 	}//for

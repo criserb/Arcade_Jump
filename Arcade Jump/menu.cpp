@@ -17,7 +17,7 @@ void menu(void)
 	int cord_cursor_y = ((height / 2) - 4) + 30;
 
 	ALLEGRO_BITMAP *cursor = al_load_bitmap("Graphics/Cursor_small.png");
-	ALLEGRO_BITMAP *menu_background = resize_bitmap("Graphics/Menu_background.jpg", width, height);
+	ALLEGRO_BITMAP *menu_background = al_load_bitmap("Graphics/Menu_background.jpg");
 	ALLEGRO_FONT *menu_item = al_load_ttf_font("Arcade_Classic.ttf", 18, 0);
 	ALLEGRO_FONT *credit = al_load_ttf_font("Arcade_Classic.ttf", 10, 0);
 	ALLEGRO_BITMAP *logo = al_load_bitmap("Graphics/Logo.png");
@@ -43,7 +43,7 @@ void menu(void)
 		//==============================================
 		//RENDERING
 		//==============================================
-		al_draw_bitmap(menu_background, 0, 0, 0);
+		al_draw_scaled_bitmap(menu_background, 0, 0, al_get_bitmap_width(menu_background), al_get_bitmap_height(menu_background), 0, 0, width, height, 0);
 		al_draw_scaled_bitmap(logo, 0, 0, al_get_bitmap_width(logo), al_get_bitmap_height(logo), width / 4, 0, width / 2, height / 2, 0);
 		al_draw_text(menu_item, al_map_rgb(r[0], g[0], b[0]), width / 2, (height / 2) + 30, ALLEGRO_ALIGN_CENTRE, "START GAME");
 		al_draw_text(menu_item, al_map_rgb(r[1], g[1], b[1]), width / 2, (height / 2) + 60, ALLEGRO_ALIGN_CENTRE, "SETTINGS");
@@ -129,7 +129,7 @@ void settings(int &cord_cursor_x, int &cord_cursor_y)
 	bool done = false;
 	ALLEGRO_MONITOR_INFO info;
 	ALLEGRO_BITMAP *cursor = al_load_bitmap("Graphics/Cursor_small.png");
-	ALLEGRO_BITMAP *menu_background = resize_bitmap("Graphics/Menu_background.jpg", width, height);
+	ALLEGRO_BITMAP *menu_background = al_load_bitmap("Graphics/Menu_background.jpg");
 	ALLEGRO_FONT *menu_item = al_load_ttf_font("Arcade_Classic.ttf", 18, 0);
 	ALLEGRO_SAMPLE *click = al_load_sample("Sounds/Click.ogg");
 	ALLEGRO_EVENT_QUEUE *menu_event_queue = al_create_event_queue();
@@ -161,7 +161,7 @@ void settings(int &cord_cursor_x, int &cord_cursor_y)
 		//==============================================
 		//RENDERING
 		//==============================================
-		al_draw_bitmap(menu_background, 0, 0, 0);
+		al_draw_scaled_bitmap(menu_background, 0, 0, al_get_bitmap_width(menu_background), al_get_bitmap_height(menu_background), 0, 0, width, height, 0);
 		al_draw_text(settings_item, al_map_rgb(r[0], g[0], b[0]), width / 2, (height / 2) + 30, ALLEGRO_ALIGN_CENTRE, "FULLSCREEN");
 		al_draw_text(settings_item, al_map_rgb(r[1], g[1], b[1]), width / 2, (height / 2) + 60, ALLEGRO_ALIGN_CENTRE, "WINDOWED");
 		al_draw_text(settings_item, al_map_rgb(r[2], g[2], b[2]), width / 2, (height / 2) + 90, ALLEGRO_ALIGN_CENTRE, "640x480");
