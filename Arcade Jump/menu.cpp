@@ -1,6 +1,5 @@
 #include "all_headers.h"
 
-int r[] = { 196,196,196,196,196,196 }, g[] = { 119,119,119,119,119,119 }, b[] = { 89,89,89,89,89,89 }; // colors of pressed buttons
 int color[] = { 255, 240, 110 };
 
 // menu variables
@@ -9,6 +8,7 @@ int att_count;
 // menu
 void menu(void)
 {
+	int r[] = { 196,196,196,196,196,196 }, g[] = { 119,119,119,119,119,119 }, b[] = { 89,89,89,89,89,89 }; // colors of pressed buttons
 	bool done = false;
 	bool game_on = false;
 	bool settings_on = false;
@@ -124,6 +124,7 @@ void menu(void)
 // settings options
 void settings(int &cord_cursor_x, int &cord_cursor_y)
 {
+	int r[] = { 196,196,196,196,196,196 }, g[] = { 119,119,119,119,119,119 }, b[] = { 89,89,89,89,89,89 }; // colors of pressed buttons
 	bool menu_on = false;
 	bool done = false;
 	ALLEGRO_MONITOR_INFO info;
@@ -267,7 +268,8 @@ void settings(int &cord_cursor_x, int &cord_cursor_y)
 	al_destroy_sample(click);
 	al_destroy_font(settings_item);
 	al_destroy_font(escape);
-	if (menu_on) menu();
+	if (menu_on)
+		return menu();
 }
 
 // coloring buttons

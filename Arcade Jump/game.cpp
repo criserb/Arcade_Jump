@@ -83,7 +83,7 @@ void game(void)
 	int sizeX; // elements in the map
 
 	std::ifstream filemap;
-	filemap.open("map1.txt");
+	filemap.open("Maps/map1.txt");
 	filemap >> sizeX;
 
 	int **map = new int*[sizeX];

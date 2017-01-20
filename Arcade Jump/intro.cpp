@@ -1,6 +1,6 @@
 #include "All_headers.h"
 
-static void video_display(ALLEGRO_VIDEO *video, ALLEGRO_FONT *skip)
+void video_display(ALLEGRO_VIDEO *video, ALLEGRO_FONT *skip)
 {
 	ALLEGRO_BITMAP *frame = al_get_video_frame(video);
 
